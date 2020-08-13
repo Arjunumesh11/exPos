@@ -1,0 +1,16 @@
+{
+    "files.exclude": {
+        "**/.l": true,
+        "**/*.c": true,
+        "**/*.h": true,
+        "**/*.l": true,
+        "**/*.lex": true,
+        "**/*.lib": true,
+        "**/*.md": true,
+        "**/*.o": true,
+        "**/*.y": true,
+        "**/AUTHORS": true,
+        "**/LICENSE": true,
+        "**/Makefile": true
+    }
+}
