@@ -1,0 +1,7 @@
+load --int=10 /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
+load --exhandler /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
+load --os $HOME/Desktop/myexpos/spl/spl_progs/os_startup.xsm
+load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
+load --init $HOME/Desktop/myexpos/expl/expl_progs/squares.xsm
+load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
+load --library $HOME/Desktop/myexpos/expl/library.lib
