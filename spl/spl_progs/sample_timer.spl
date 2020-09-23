@@ -17,10 +17,11 @@ process_table_entry = PROCESS_TABLE + currentPID * 16;
 [process_table_entry + 4] = READY;
 
 alias newPID R2;
+print currentPID;
 if(currentPID == 0) then
 	newPID = 1;
 else
-	newPID = 0;
+newPID = 0;
 endif;
 
 alias new_process_table R3;
@@ -31,6 +32,7 @@ SP =  [new_process_table + 11] * 512 + [new_process_table + 12] ;
 PTBR = [new_process_table + 14];
 PTLR = [new_process_table + 15];
 
+print newPID;
 [SYSTEM_STATUS_TABLE + 1] = newPID;
 
 if([new_process_table + 4] == CREATED) then
