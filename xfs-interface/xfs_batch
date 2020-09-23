@@ -6,3 +6,4 @@ load --init $HOME/Desktop/myexpos/expl/expl_progs/test_11.xsm
 load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
 load --idle /home/arjun/Desktop/myexpos/expl/expl_progs/idle.xsm
 load --library $HOME/Desktop/myexpos/expl/library.lib
+load --module 7 $HOME/Desktop/myexpos/spl/spl_progs/boot_module.xsm

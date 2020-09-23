@@ -6,7 +6,7 @@ int main()
 	begin
 		while(1==1) do
 			a=1;
-			//temp=exposcall("Write",-2,"idle"); 
+			temp=exposcall("Write",-2,"idle"); 
 			breakpoint;
 		endwhile;
 		return 0;
