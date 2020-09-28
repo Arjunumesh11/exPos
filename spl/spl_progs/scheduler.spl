@@ -1,7 +1,37 @@
 alias current_pid R0;
 alias current_process R1;
+alias new_process R2;
+alias new_pid R3;
+
 current_pid = [SYSTEM_STATUS_TABLE+1];
 multipush (BP);
 current_process = PROCESS_TABLE + 16*current_process;
 [current_process + 12] = SP % 512;
+[current_process + 14] = PTBR;
+[current_process + 15] = PTLR;
+//round robin
 
+
+new_process = PROCESS_TABLE + 16*new_pid;
+
+//Set back Kernel SP, PTBR , PTLR
+SP =  [new_process + 11] * 512 + [new_process + 12] ;
+PTBR = [new_process + 14];
+PTLR = [new_process + 15];
+
+print new_pid;
+[SYSTEM_STATUS_TABLE + 1] = new_pid;
+
+if([new_process + 4] == CREATED) then
+	[new_process + 4] = RUNNING;
+    SP = [new_process + 13];
+    [new_process + 9] = 0;      //MODE_FLAG
+	ireturn;
+endif;
+
+[new_process + 4] = RUNNING;
+multipop (BP);
+
+
+print "TIMER";
+SP = [new_process + 13];
