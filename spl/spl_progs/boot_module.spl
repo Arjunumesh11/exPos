@@ -122,5 +122,5 @@ while (current<16) do
     [PROCESS_TABLE + 16*current + 4] = "TERMINATED" ; 
     current = current + 1;
 endwhile;
-breakpoint;
+//breakpoint;
 return;

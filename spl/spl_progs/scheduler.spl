@@ -1,0 +1,7 @@
+alias current_pid R0;
+alias current_process R1;
+current_pid = [SYSTEM_STATUS_TABLE+1];
+multipush (BP);
+current_process = PROCESS_TABLE + 16*current_process;
+[current_process + 12] = SP % 512;
+

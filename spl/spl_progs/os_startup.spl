@@ -4,12 +4,13 @@ loadi(54,67);
 loadi(55,68);
 
 
-PTBR = PAGE_TABLE_BASE;
-PTLR = 10;
 
 SP = 82*512-1;
 call BOOT_MODULE;
-breakpoint;
+
+PTBR = PAGE_TABLE_BASE;
+PTLR = 10;
+
 //_________idle program________________
 //Library
 [PTBR+0] = 63;
@@ -51,8 +52,9 @@ breakpoint;
 [PROCESS_TABLE + 15] = 10;
 
 
-[76*512] = [65*512+1];
+[81*512] = [69*512+1];
 [SYSTEM_STATUS_TABLE+1]=1;
+breakpoint;
 
 SP = 8*512;
 ireturn; 
