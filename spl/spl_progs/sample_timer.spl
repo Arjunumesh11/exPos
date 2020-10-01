@@ -7,18 +7,18 @@ backup;
 
 alias currentPID R0;
 currentPID = [SYSTEM_STATUS_TABLE+1];
-
 alias process_table_entry R1;
 process_table_entry = PROCESS_TABLE + currentPID * 16;
 
 
-[process_table_entry + 4] = READY;
+[process_table_entry + 4] = "READY";
 
 call SCHEDULER;
-
+print "timer";
+print [SYSTEM_STATUS_TABLE+1];
 restore;
 
-
-
-
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+//set mode to 0
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
 ireturn;

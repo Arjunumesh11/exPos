@@ -1,3 +1,5 @@
+//bootloader
+//MOD 7
 //INIT
 loadi(65,7);
 loadi(66,8);
@@ -118,6 +120,8 @@ PTBR=PAGE_TABLE_BASE+40;
 //there are 16 process
 alias state R0;
 alias current R1;
+// there are 16 process 0 - 15
+current = 3;
 while (current<16) do
     [PROCESS_TABLE + 16*current + 4] = "TERMINATED" ; 
     current = current + 1;

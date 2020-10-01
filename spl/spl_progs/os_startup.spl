@@ -51,9 +51,9 @@ PTLR = 10;
 [PROCESS_TABLE + 14] = PAGE_TABLE_BASE;
 [PROCESS_TABLE + 15] = 10;
 
-
+//idle process is called first
 [81*512] = [69*512+1];
-[SYSTEM_STATUS_TABLE+1]=1;
+[SYSTEM_STATUS_TABLE+1]=0;
 breakpoint;
 
 SP = 8*512;

@@ -1,9 +1,10 @@
-load --int=10 /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
+load --int=10 /home/arjun/Desktop/myexpos/spl/spl_progs/INIT10.xsm
+load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
+load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --exhandler /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
 load --os $HOME/Desktop/myexpos/spl/spl_progs/os_startup.xsm
-load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --init $HOME/Desktop/myexpos/expl/expl_progs/test_11.xsm
-load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
 load --idle /home/arjun/Desktop/myexpos/expl/expl_progs/idle.xsm
 load --library $HOME/Desktop/myexpos/expl/library.lib
 load --module 7 $HOME/Desktop/myexpos/spl/spl_progs/boot_module.xsm
+load --module 5 /home/arjun/Desktop/myexpos/spl/spl_progs/scheduler.xsm
