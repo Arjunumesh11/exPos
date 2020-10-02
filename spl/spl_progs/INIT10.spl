@@ -1,7 +1,7 @@
 alias current_pid R0;
 alias current_process R1;
 
-print "HALT";
+
 
 current_pid = [SYSTEM_STATUS_TABLE + 1];
 current_process = PROCESS_TABLE + current_pid * 16;
