@@ -32,6 +32,12 @@ loadi(83,69);
 //schedular
 loadi(50,63);
 loadi(51,64);
+//resource manger mod 0
+loadi(40,53);
+loadi(41,54);
+//device manager
+loadi(48,61);
+loadi(49,62);
 
 //__________INIT program________________
 

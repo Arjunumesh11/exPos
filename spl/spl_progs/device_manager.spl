@@ -1,0 +1,30 @@
+//device manager
+//module 4
+
+//R1 function number
+//R2 PID
+
+alias functionNum R1;
+alias currentPID R2;
+
+//terminal write 3
+//R3 word
+if (functionNum == 3) then
+    alias word R3;
+    multipush(R1,R2,R3);
+    
+    // acquire terminal
+    functionNum = 8;
+    call RESOURCE_MANAGER;
+    multipop(R1,R2,R3);
+    
+    // write 
+    print word;
+    //frees terminal
+    multipush(R1,R2,R3);
+    functionNum = 9;
+    call RESOURCE_MANAGER;
+    multipop(R1,R2,R3);
+    return;
+endif;
+    
