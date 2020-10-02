@@ -27,4 +27,27 @@ if (functionNum == 3) then
     multipop(R1,R2,R3);
     return;
 endif;
+
+//terminal read 4
+//R3 word
+if (functionNum == 4) then
+    alias word R3;
+    multipush(R1,R2,R3);
+    
+    // acquire terminal
+    functionNum = 8;
+    call RESOURCE_MANAGER;
+    multipop(R1,R2,R3);
+    
+    // read 
+    read;
+    [PROCESS_TABLE + 16*currentPID + 4] = "WAIT_TERMINAL";
+    multipush(R1,R2,R3,R4);
+    call SCHEDULER;
+    multipop(R1,R2,R3,R4);
+    alias word_address R5;
+    word_address = [PTBR + 2 * (word/ 512)] * 512 + (word % 512);
+    [word_address] = [PROCESS_TABLE + currentPID*16 + 8];
+    return;
+endif;
     
