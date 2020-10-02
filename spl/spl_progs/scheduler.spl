@@ -9,13 +9,14 @@ alias flag R5;
 
 
 current_pid = [SYSTEM_STATUS_TABLE+1];
+
 multipush (BP);
 current_process = PROCESS_TABLE + 16*current_pid;
 [current_process + 12] = SP % 512;
 [current_process + 14] = PTBR;
 [current_process + 15] = PTLR;
 //round robin
-pid_itr=1;
+pid_itr=0;
 flag = 0;
 
 while (pid_itr<16) do
@@ -23,7 +24,7 @@ while (pid_itr<16) do
     current_pid=(current_pid+1)%16;
 
     if (current_pid!=0) then
-        if ([PROCESS_TABLE + current_pid*16 + 4] !="TERMINATED" ) then
+        if ([PROCESS_TABLE + current_pid*16 + 4] =="READY"||[PROCESS_TABLE + current_pid*16 + 4] =="CREATED" ) then
             flag = 1;
             break;
         endif;
