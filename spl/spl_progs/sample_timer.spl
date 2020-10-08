@@ -1,24 +1,29 @@
 //fetching stack address
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+//print SP;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
 
-
 backup;
-
+//print "TIMER INT";
 alias currentPID R0;
 currentPID = [SYSTEM_STATUS_TABLE+1];
 alias process_table_entry R1;
 process_table_entry = PROCESS_TABLE + currentPID * 16;
 
+//print  currentPID;
+[process_table_entry + 4] = READY;
 
-[process_table_entry + 4] = "READY";
-
+//print "timer start";
 call SCHEDULER;
+//print "timer end";
 
 
 restore;
 
+
 SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 //set mode to 0
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 9] = 0;
+//breakpoint;
+
 ireturn;

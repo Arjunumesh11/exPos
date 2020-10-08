@@ -5,14 +5,14 @@ alias current_process R1;
 
 current_pid = [SYSTEM_STATUS_TABLE + 1];
 current_process = PROCESS_TABLE + current_pid * 16;
-[current_process + 4 ] = "TERMINATED";
+[current_process + 4 ] = TERMINATED;
 
 alias process_itr R2;
 alias flag R3;
 process_itr = 1;
 flag  = 0;
 while (process_itr <= 15 ) do
-    if ([PROCESS_TABLE + process_itr*16 + 4 ] != "TERMINATED") then
+    if ([PROCESS_TABLE + process_itr*16 + 4 ] != TERMINATED) then
      flag = 1;
       break;   
     endif;

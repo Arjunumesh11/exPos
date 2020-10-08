@@ -20,9 +20,16 @@ loadi(64,14);
 loadi(4,17);
 loadi(5,18);
 
+//console
+loadi(8,21);
+loadi(9,22);
+
 //int7
 loadi(16,29);
 loadi(17,30);
+//int6
+loadi(14,27);
+loadi(15,28);
 
 //idle_program
 loadi(69,11);
@@ -38,6 +45,7 @@ loadi(41,54);
 //device manager
 loadi(48,61);
 loadi(49,62);
+
 
 //__________INIT program________________
 
@@ -74,7 +82,7 @@ PTBR=PAGE_TABLE_BASE+20;
 
 //INIT
 [PROCESS_TABLE + 16 + 1] = 1;
-[PROCESS_TABLE + 16 + 4] = "CREATED";
+[PROCESS_TABLE + 16 + 4] = CREATED;
 [PROCESS_TABLE + 16 + 11] = 80;
 [PROCESS_TABLE + 16 + 12] = 0;
 [PROCESS_TABLE + 16 + 13] = 8*512;
@@ -114,7 +122,7 @@ PTBR=PAGE_TABLE_BASE+40;
 //_____________________________________
 //even
 [PROCESS_TABLE + 32 + 1] = 2;
-[PROCESS_TABLE + 32 + 4] = "CREATED";
+[PROCESS_TABLE + 32 + 4] = CREATED;
 [PROCESS_TABLE + 32 + 11] = 88;
 [PROCESS_TABLE + 32 + 12] = 0;
 [PROCESS_TABLE + 32 + 13] = 8*512;
@@ -127,10 +135,12 @@ PTBR=PAGE_TABLE_BASE+40;
 alias state R0;
 alias current R1;
 // there are 16 process 0 - 15
-current = 3;
+current = 2;
 while (current<16) do
-    [PROCESS_TABLE + 16*current + 4] = "TERMINATED" ; 
+    [PROCESS_TABLE + 16*current + 4] = TERMINATED ; 
     current = current + 1;
 endwhile;
+[TERMINAL_STATUS_TABLE] = 0;
+
 //breakpoint;
 return;

@@ -1,16 +1,21 @@
 //scheduler
 //MOD 5
-alias current_pid R0;
+// breakpoint;
+alias current_pid R6;
+current_pid = [SYSTEM_STATUS_TABLE+1];
+
 alias current_process R1;
 alias new_process R2;
 alias new_pid R3;
 alias pid_itr R4;
 alias flag R5;
-
-
-current_pid = [SYSTEM_STATUS_TABLE+1];
-
+// print "current_pid";
+// print current_pid;
 multipush (BP);
+
+// print "current pid";
+// print current_pid;
+// breakpoint;
 current_process = PROCESS_TABLE + 16*current_pid;
 [current_process + 12] = SP % 512;
 [current_process + 14] = PTBR;
@@ -24,7 +29,7 @@ while (pid_itr<16) do
     current_pid=(current_pid+1)%16;
 
     if (current_pid!=0) then
-        if ([PROCESS_TABLE + current_pid*16 + 4] =="READY"||[PROCESS_TABLE + current_pid*16 + 4] =="CREATED" ) then
+        if ([PROCESS_TABLE + current_pid*16 + 4] ==READY||[PROCESS_TABLE + current_pid*16 + 4] ==CREATED ) then
             flag = 1;
             break;
         endif;
@@ -34,22 +39,28 @@ if(flag == 0) then
     current_pid = 0;
 endif;
 new_pid = current_pid;
+// print "new_pid";
+// print new_pid;
+//new_pid = current_pid;
+// breakpoint;
 [SYSTEM_STATUS_TABLE + 1] = new_pid;
 new_process = PROCESS_TABLE + 16*new_pid;
-
+// print "scheduler id ";
+// print new_pid;
 //Set back Kernel SP, PTBR , PTLR
 SP =  [new_process + 11] * 512 + [new_process + 12] ;
 PTBR = [new_process + 14];
 PTLR = [new_process + 15];
 
 
-if([new_process + 4] == "CREATED") then
-	[new_process + 4] = "RUNNING";
+if([new_process + 4] == CREATED) then
+	[new_process + 4] = RUNNING;
     SP = [new_process + 13];
     [new_process + 9] = 0;      //MODE_FLAG
-	ireturn;
+    ireturn;
 endif;
 
-[new_process + 4] = "RUNNING";
+[new_process + 4] = RUNNING;
 multipop (BP);
+// print "sched end";
 return;
