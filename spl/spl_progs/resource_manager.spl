@@ -31,14 +31,14 @@ if (functionNum == 9) then
         return;
     endif;
     // print  "release";
-    breakpoint;
+    //breakpoint;
     [TERMINAL_STATUS_TABLE] = 0;
     alias process_itr R1;
     process_itr = 1;
     while (process_itr<16) do
         if([PROCESS_TABLE + 16*process_itr + 4 ] == WAIT_TERMINAL) then
             // print process_itr;
-            breakpoint;
+            //breakpoint;
             [PROCESS_TABLE + 16*process_itr + 4] = READY;
         endif;
         process_itr = process_itr + 1;

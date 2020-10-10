@@ -3,7 +3,6 @@
 // breakpoint;
 alias current_pid R6;
 current_pid = [SYSTEM_STATUS_TABLE+1];
-
 alias current_process R1;
 alias new_process R2;
 alias new_pid R3;
@@ -52,7 +51,7 @@ SP =  [new_process + 11] * 512 + [new_process + 12] ;
 PTBR = [new_process + 14];
 PTLR = [new_process + 15];
 
-
+breakpoint;
 if([new_process + 4] == CREATED) then
 	[new_process + 4] = RUNNING;
     SP = [new_process + 13];
