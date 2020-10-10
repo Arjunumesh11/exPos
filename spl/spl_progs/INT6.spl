@@ -6,6 +6,7 @@ userSP=SP;
 current_pid = [SYSTEM_STATUS_TABLE + 1];
 alias process_table R2;
 process_table = PROCESS_TABLE + 16*current_pid;
+//setting mod to 7 systemcall no
 [process_table + 9] = 7;
 
 [process_table + 13] = SP;
