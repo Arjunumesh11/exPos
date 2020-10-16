@@ -1,2 +1,64 @@
 //process manager
 //MOD 1
+
+//R1 is function number
+//R2 PID of current proccess
+alias functionNum R1;
+alias currentPID R2;
+
+//for release page function
+alias block_num R5;
+//Free user area page
+if (functionNum == FREE_USER_AREA_PAGE) then
+    alias process_table R3;
+    process_table = PROCESS_TABLE + 16*currentPID;
+    //release page
+    block_num = [process_table + 11];
+    call release_page;
+    return;
+endif;
+
+//EXIT_process
+if (functionNum == 3) then
+    alias process_table R3;
+    process_table = PROCESS_TABLE + 16*currentPID;
+    //Free page table
+    multipush(R1,R2,R3);
+    functionNum = FREE_PAGE_TABLE;
+    call PROCESS_MANAGER;
+    multipop(R1,R2,R3);    
+    //Free user area page
+    multipush(R1,R2,R3);
+    functionNum = FREE_USER_AREA_PAGE;
+    call PROCESS_MANAGER;
+    multipop(R1,R2,R3);    
+    [ process_table + 4 ] =TERMINATED;
+    return;
+endif;
+//Free page table
+if (functionNum == FREE_PAGE_TABLE) then
+//--------------->Need to change to loop 
+    //invalidating page table
+    //library
+    alias page_itr R4;
+    page_itr = 0;
+    while (page_itr<20) do
+        if ([ PTBR + page_itr ]!=-1) then
+            block_num = [ PTBR + page_itr ];
+            call release_page;
+            page_itr = page_itr + 2;
+        endif;
+    endwhile;
+    return;
+endif;
+
+release_page:
+    multipush(R1,R2,R3,R4,R5);
+    //calling release page
+    functionNum = RELEASE_PAGE;
+    R2 = block_num;
+    call MEMORY_MANAGER;
+    multipop(R1,R2,R3,R4,R5);
+    [ block_num ] = -1;
+    [ block_num + 1] = "0000";
+return;

@@ -1,2 +1,54 @@
 //memory manager
 //MOD 2
+
+
+//R1 is function number
+//R2 PID of current proccess
+alias functionNum R1;
+alias currentPID R2;
+
+//get freepage 1
+if(functionNum == GET_FREE_PAGE) then
+    //increment mem_wait_count
+    [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] + 1; 
+    //while mem is full schedule other process
+    while ([SYSTEM_STATUS_TABLE + 2 ]==0) do
+        //setting current process state to WAIT_MEM_COUNT
+        [PROCESS_TABLE + 16*currentPID + 4] = WAIT_MEM;
+        call SCHEDULER;
+    endwhile;
+    //decrement mem_wait_count 
+    [SYSTEM_STATUS_TABLE + 3] = [SYSTEM_STATUS_TABLE + 3] - 1;
+    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] - 1;
+    alias free_page_itr R3;
+    free_page_itr = 76;
+//---------------> dont forget to change the user page of init , idle
+    //get free page 76 - 127
+    while (free_page_itr < 128) do
+        if([MEMORY_FREE_LIST + free_page_itr] == 0) then
+            [MEMORY_FREE_LIST + free_page_itr] = 1;
+            //return 
+            R0 = free_page_itr;
+            return;
+        endif;
+        free_page_itr = free_page_itr + 1;
+    endwhile;
+    return;
+endif;
+
+//release page 2
+if(functionNum == RELEASE_PAGE) then
+    [MEMORY_FREE_LIST + R2] = [MEMORY_FREE_LIST + R2] - 1;
+    if ([MEMORY_FREE_LIST + R2] == 0) then
+        [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2] + 1;
+    alias process_itr R3;
+    process_itr = 1;
+    while (process_itr < 16) do
+        if ([PROCESS_TABLE + 16*process_itr + 4 ] == WAIT_MEM) then
+            [PROCESS_TABLE + 16*process_itr + 4 ] = READY;
+        endif;
+        process_itr = process_itr + 1;
+    endwhile;
+    endif;   
+    return;
+endif;

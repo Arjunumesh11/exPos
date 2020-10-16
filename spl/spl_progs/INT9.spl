@@ -44,7 +44,7 @@ else
     //regaining userpage
     [MEMORY_FREE_LIST + [process_table + 11]] = 1;
     //reducing mem_count
-    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2];
+    [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2]-1;
     SP = [process_table + 11]*512 - 1;
     [process_table + 7] = inode_itr;
     [process_table + 4] = RUNNING;
