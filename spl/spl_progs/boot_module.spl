@@ -1,4 +1,5 @@
 //bootloader
+// print "bootLoader";
 //MOD 7
 //INIT
 loadi(65,7);
@@ -30,6 +31,9 @@ loadi(17,30);
 //int6
 loadi(14,27);
 loadi(15,28);
+//int9
+loadi(20,33);
+loadi(21,34);
 
 //idle_program
 loadi(69,11);
@@ -42,11 +46,15 @@ loadi(51,64);
 //resource manger mod 0
 loadi(40,53);
 loadi(41,54);
-//device manager
+//device manager mod 4
 loadi(48,61);
 loadi(49,62);
-
-
+//process manger mod 1
+loadi(42,55);
+loadi(43,56);
+//memory manager mod 2 
+loadi(44,57);
+loadi(45,58);
 //__________INIT program________________
 
 //library
@@ -110,6 +118,7 @@ while (current < 128) do
     else
         [MEMORY_FREE_LIST + current] = 0;
     endif;
+    current = current + 1;
 endwhile;
 //setting WAIT_MEM and Free_count
 [SYSTEM_STATUS_TABLE + 2] = 127 - 82;

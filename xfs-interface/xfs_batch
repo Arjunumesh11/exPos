@@ -1,5 +1,6 @@
 load --int=6 /home/arjun/Desktop/myexpos/spl/spl_progs/INT6.xsm
 load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
+load --int=9 /home/arjun/Desktop/myexpos/spl/spl_progs/INT9.xsm
 load --int=10 /home/arjun/Desktop/myexpos/spl/spl_progs/INIT10.xsm
 load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --int=console $HOME/Desktop/myexpos/spl/spl_progs/console_interupt.xsm

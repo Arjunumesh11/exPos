@@ -50,7 +50,7 @@ new_process = PROCESS_TABLE + 16*new_pid;
 SP =  [new_process + 11] * 512 + [new_process + 12] ;
 PTBR = [new_process + 14];
 PTLR = [new_process + 15];
-
+// print new_pid;
 breakpoint;
 if([new_process + 4] == CREATED) then
 	[new_process + 4] = RUNNING;
