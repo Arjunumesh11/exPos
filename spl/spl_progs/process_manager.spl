@@ -46,8 +46,8 @@ if (functionNum == FREE_PAGE_TABLE) then
         if ([ PTBR + page_itr ]!=-1) then
             block_num = [ PTBR + page_itr ];
             call release_page;
-            page_itr = page_itr + 2;
         endif;
+        page_itr = page_itr + 2;
     endwhile;
     return;
 endif;

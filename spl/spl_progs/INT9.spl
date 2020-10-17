@@ -1,6 +1,5 @@
 //INT 9
 //EXEC
-
 alias userSP R0;
 alias current_pid R1;
 alias process_table R2;
@@ -16,7 +15,6 @@ SP = [process_table + 11]*512 - 1;
 
 alias filename R3;
 filename=[[PTBR + 2*(userSP - 4)/512]*512 + (userSP-4)%512];
-
 alias inode_itr R4;
 inode_itr = 1;
 while (inode_itr<MAX_FILE_NUM) do
@@ -31,6 +29,7 @@ endwhile;
 //could not find the file
 if(inode_itr==MAX_FILE_NUM) then
     //setting return value to -1
+    print "NO file";
     [[PTBR + 2*(userSP - 1)/512]*512 + (userSP-1)%512] = -1;
 else    
     multipush(R1,R2,R3,R4);
@@ -83,33 +82,14 @@ else
     
     multipop(R1,R2,R3,R4);
     //Code
-    if ([INODE_TABLE + 16*inode_itr + 6]!=-1) then
-        multipush(R1,R2,R3,R4);
-        //get page table function
-        function_num = 1; 
-        call MEMORY_MANAGER;
-        [PTBR+8] = R0;
-        [PTBR+9] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 6]); 
-        multipop(R1,R2,R3,R4);   
-    endif;
-    if ([INODE_TABLE + 16*inode_itr + 7]!=-1) then
-        multipush(R1,R2,R3,R4);
-        //get page table function
-        function_num = 1; 
-        call MEMORY_MANAGER;
-        [PTBR+10] = R0;
-        [PTBR+11] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 7]); 
-        multipop(R1,R2,R3,R4);   
-    endif;
     if ([INODE_TABLE + 16*inode_itr + 8]!=-1) then
         multipush(R1,R2,R3,R4);
         //get page table function
         function_num = 1; 
         call MEMORY_MANAGER;
-        [PTBR+12] = R0;
-        [PTBR+13] = "0100";
+        print "code";
+        [PTBR+8] = R0;
+        [PTBR+9] = "0100";
         loadi(R0,[INODE_TABLE + 16*inode_itr + 8]); 
         multipop(R1,R2,R3,R4);   
     endif;
@@ -118,10 +98,32 @@ else
         //get page table function
         function_num = 1; 
         call MEMORY_MANAGER;
+        [PTBR+10] = R0;
+        [PTBR+11] = "0100";
+        loadi(R0,[INODE_TABLE + 16*inode_itr + 9]); 
+        multipop(R1,R2,R3,R4);   
+    endif;
+    if ([INODE_TABLE + 16*inode_itr + 10]!=-1) then
+        multipush(R1,R2,R3,R4);
+        print "code";
+        //get page table function
+        function_num = 1; 
+        call MEMORY_MANAGER;
+        [PTBR+12] = R0;
+        [PTBR+13] = "0100";
+        loadi(R0,[INODE_TABLE + 16*inode_itr + 10]); 
+        multipop(R1,R2,R3,R4);   
+    endif;
+    if ([INODE_TABLE + 16*inode_itr + 11]!=-1) then
+        multipush(R1,R2,R3,R4);
+        //get page table function
+        function_num = 1; 
+        call MEMORY_MANAGER;
         [PTBR+14] = R0;
         [PTBR+15] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 9]); 
-        multipop(R1,R2,R3,R4); 
+        loadi(R0,[INODE_TABLE + 16*inode_itr + 11]); 
+        multipop(R1,R2,R3,R4);
+    endif; 
         alias stack_mem R5;
         alias code_mem R6;
 
@@ -129,8 +131,9 @@ else
         code_mem = [PTBR+8];
         [stack_mem*512] = [code_mem*512+1];
         SP = 8*512;
+
         ireturn;
-    endif;
+    
     
 endif;
 [process_table +9] = 0;

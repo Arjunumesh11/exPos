@@ -38,6 +38,10 @@ loadi(21,34);
 //idle_program
 loadi(69,11);
 loadi(70,12);
+//load inode table
+loadi(59,3);
+loadi(60,4);
+
 //even
 loadi(83,69);
 //schedular
@@ -120,6 +124,7 @@ while (current < 128) do
     endif;
     current = current + 1;
 endwhile;
+current = 76;
 //setting WAIT_MEM and Free_count
 [SYSTEM_STATUS_TABLE + 2] = 127 - 82;
 [SYSTEM_STATUS_TABLE + 3] = 0; 

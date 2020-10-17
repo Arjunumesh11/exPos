@@ -6,7 +6,8 @@ load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --int=console $HOME/Desktop/myexpos/spl/spl_progs/console_interupt.xsm
 load --exhandler /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
 load --os $HOME/Desktop/myexpos/spl/spl_progs/os_startup.xsm
-load --init $HOME/Desktop/myexpos/expl/expl_progs/test_11.xsm
+load --init $HOME/Desktop/myexpos/expl/expl_progs/shell.xsm
+load --exec /home/arjun/Desktop/myexpos/expl/expl_progs/even.xsm
 load --idle /home/arjun/Desktop/myexpos/expl/expl_progs/idle.xsm
 load --library $HOME/Desktop/myexpos/expl/library.lib
 load --module 0 /home/arjun/Desktop/myexpos/spl/spl_progs/resource_manager.xsm
