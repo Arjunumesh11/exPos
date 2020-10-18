@@ -9,7 +9,22 @@ alias currentPID R2;
 
 //dsik_load 2
 if (functionNum == 3) then
+    alias page_num R3;
+    alias block_num R4;
+    multipush(R1,R2,R3,R4);
+    //calling resource manager
+    //accquire disk
+    functionNum = ACQUIRE_DISK;
+    call RESOURCE_MANAGER;
+    multipop(R1,R2,R3,R4);
     
+    //load
+    [DISK_STATUS_TABLE + 1] = 0;
+    [DISK_STATUS_TABLE + 2] = page_num;
+    [DISK_STATUS_TABLE + 3] = block_num;
+    load(page_num,block_num);
+    [PROCESS_TABLE + 16*currentPID + 4] = WAIT_DISK;
+    call SCHEDULER;
     return;
 endif;
 //terminal write 3

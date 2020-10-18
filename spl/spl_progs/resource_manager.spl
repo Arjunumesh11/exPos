@@ -7,7 +7,16 @@ alias functionNum R1;
 alias currentPID R2;
 
 //accquire disk 2
-
+if (functionNum == 2) then
+    while ([DISK_STATUS_TABLE]==1) do
+        [PROCESS_TABLE + 16*currentPID + 4] = WAIT_DISK;
+        call SCHEDULER;
+    endwhile;
+    //status
+    [DISK_STATUS_TABLE ] = 1;
+    [DISK_STATUS_TABLE + 4] = currentPID;
+    return;
+endif;
 
 //acquire  terminal 8
 if (functionNum == 8) then
