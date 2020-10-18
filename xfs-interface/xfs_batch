@@ -4,6 +4,7 @@ load --int=9 /home/arjun/Desktop/myexpos/spl/spl_progs/INT9.xsm
 load --int=10 /home/arjun/Desktop/myexpos/spl/spl_progs/INIT10.xsm
 load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --int=console $HOME/Desktop/myexpos/spl/spl_progs/console_interupt.xsm
+load --int=disk $HOME/Desktop/myexpos/spl/spl_progs/disk_interupt.xsm
 load --exhandler /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
 load --os $HOME/Desktop/myexpos/spl/spl_progs/os_startup.xsm
 load --init $HOME/Desktop/myexpos/expl/expl_progs/shell.xsm

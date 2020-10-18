@@ -6,8 +6,10 @@
 alias functionNum R1;
 alias currentPID R2;
 
+//accquire disk 2
 
-//acquire 8
+
+//acquire  terminal 8
 if (functionNum == 8) then
     alias terminal_status R3;
     terminal_status = [TERMINAL_STATUS_TABLE];
@@ -23,7 +25,7 @@ if (functionNum == 8) then
     [TERMINAL_STATUS_TABLE + 1] = currentPID;
     return;
 endif;
-//release 9
+//release terminal 9
 if (functionNum == 9) then
     if(currentPID != [TERMINAL_STATUS_TABLE+1]) then
         R0=-1;

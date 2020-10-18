@@ -7,6 +7,11 @@
 alias functionNum R1;
 alias currentPID R2;
 
+//dsik_load 2
+if (functionNum == 3) then
+    
+    return;
+endif;
 //terminal write 3
 //R3 word
 if (functionNum == 3) then
