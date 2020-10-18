@@ -51,11 +51,15 @@ SP =  [new_process + 11] * 512 + [new_process + 12] ;
 PTBR = [new_process + 14];
 PTLR = [new_process + 15];
 // print new_pid;
-breakpoint;
+// breakpoint;
 if([new_process + 4] == CREATED) then
 	[new_process + 4] = RUNNING;
     SP = [new_process + 13];
     [new_process + 9] = 0;      //MODE_FLAG
+// print "sched end";
+// print [PTBR +8];
+// print SP;
+
     ireturn;
 endif;
 

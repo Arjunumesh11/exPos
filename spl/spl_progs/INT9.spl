@@ -3,9 +3,12 @@
 alias userSP R0;
 alias current_pid R1;
 alias process_table R2;
+alias block_num R5;
+alias page_num R6;
 
 userSP=SP;
 current_pid = [SYSTEM_STATUS_TABLE + 1];
+// print current_pid;
 process_table = PROCESS_TABLE + 16*current_pid;
 //setting mod to 9 systemcall no
 [process_table + 9] = 9;
@@ -82,16 +85,19 @@ else
     
     multipop(R1,R2,R3,R4);
     //Code
+   
     if ([INODE_TABLE + 16*inode_itr + 8]!=-1) then
         multipush(R1,R2,R3,R4);
         //get page table function
+        // print "code";
         function_num = 1; 
         call MEMORY_MANAGER;
-        print "code";
         [PTBR+8] = R0;
         [PTBR+9] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 8]); 
-        multipop(R1,R2,R3,R4);   
+        multipop(R1,R2,R3,R4);
+        block_num = [INODE_TABLE + 16*inode_itr + 8];
+        page_num = [PTBR +8]; 
+        call mem_manager;
     endif;
     if ([INODE_TABLE + 16*inode_itr + 9]!=-1) then
         multipush(R1,R2,R3,R4);
@@ -100,19 +106,22 @@ else
         call MEMORY_MANAGER;
         [PTBR+10] = R0;
         [PTBR+11] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 9]); 
-        multipop(R1,R2,R3,R4);   
+        multipop(R1,R2,R3,R4);
+        block_num = [INODE_TABLE + 16*inode_itr + 9];
+        page_num = [PTBR + 10 ]; 
+        call mem_manager;
     endif;
     if ([INODE_TABLE + 16*inode_itr + 10]!=-1) then
         multipush(R1,R2,R3,R4);
-        print "code";
         //get page table function
         function_num = 1; 
         call MEMORY_MANAGER;
         [PTBR+12] = R0;
         [PTBR+13] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 10]); 
         multipop(R1,R2,R3,R4);   
+        block_num = [INODE_TABLE + 16*inode_itr + 10];
+        page_num = [PTBR + 12 ]; 
+        call mem_manager;
     endif;
     if ([INODE_TABLE + 16*inode_itr + 11]!=-1) then
         multipush(R1,R2,R3,R4);
@@ -121,8 +130,10 @@ else
         call MEMORY_MANAGER;
         [PTBR+14] = R0;
         [PTBR+15] = "0100";
-        loadi(R0,[INODE_TABLE + 16*inode_itr + 11]); 
         multipop(R1,R2,R3,R4);
+        block_num = [INODE_TABLE + 16*inode_itr + 11];
+        page_num = [PTBR + 14 ]; 
+        call mem_manager;
     endif; 
         alias stack_mem R5;
         alias code_mem R6;
@@ -139,3 +150,15 @@ endif;
 [process_table +9] = 0;
 SP = [process_table + 13];
 ireturn;
+
+mem_manager:
+    // print "mem";
+    multipush(R1,R2,R3,R4,R5);
+    R2 = current_pid; 
+    R1 = 2;
+    R3 = page_num;
+    R4 = block_num;
+
+    call DEVICE_MANAGER;
+    multipop(R1,R2,R3,R4,R5);
+return;

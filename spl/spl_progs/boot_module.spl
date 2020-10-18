@@ -25,6 +25,9 @@ loadi(5,18);
 loadi(8,21);
 loadi(9,22);
 
+//disk
+loadi(6,19);
+loadi(7,20);
 //int7
 loadi(16,29);
 loadi(17,30);
@@ -113,6 +116,7 @@ while (current<16) do
     current = current + 1;
 endwhile;
 [TERMINAL_STATUS_TABLE] = 0;
+[DISK_STATUS_TABLE] = 0;
 // memory upto 82 is allocated for init and idel
 // intialising rest of memory page from 76 - 127
 current = 76;
