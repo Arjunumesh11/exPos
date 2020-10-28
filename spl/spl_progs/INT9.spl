@@ -50,6 +50,13 @@ else
     SP = [process_table + 11]*512 - 1;
     [process_table + 7] = inode_itr;
     [process_table + 4] = RUNNING;
+    //setting per-process resource table
+    alias per_process_itr R5;
+    per_process_itr = 0;
+    while (per_process_itr<16) do
+        [[process_table + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ] = -1;  
+        per_process_itr = per_process_itr + 1; 
+    endwhile;
 
     //setting page_table entry for new process
     PTBR = process_table;

@@ -1,19 +1,19 @@
-load --int=6 /home/arjun/Desktop/myexpos/spl/spl_progs/INT6.xsm
-load --int=7 /home/arjun/Desktop/myexpos/spl/spl_progs/INT7.xsm
-load --int=9 /home/arjun/Desktop/myexpos/spl/spl_progs/INT9.xsm
-load --int=10 /home/arjun/Desktop/myexpos/spl/spl_progs/INIT10.xsm
+load --int=6 $HOME/Desktop/myexpos/spl/spl_progs/INT6.xsm
+load --int=7 $HOME/Desktop/myexpos/spl/spl_progs/INT7.xsm
+load --int=9 $HOME/Desktop/myexpos/spl/spl_progs/INT9.xsm
+load --int=10 $HOME/Desktop/myexpos/spl/spl_progs/INIT10.xsm
 load --int=timer $HOME/Desktop/myexpos/spl/spl_progs/sample_timer.xsm
 load --int=console $HOME/Desktop/myexpos/spl/spl_progs/console_interupt.xsm
 load --int=disk $HOME/Desktop/myexpos/spl/spl_progs/disk_interupt.xsm
-load --exhandler /home/arjun/Desktop/myexpos/spl/samples/haltprog.xsm
+load --exhandler $HOME/Desktop/myexpos/spl/samples/haltprog.xsm
 load --os $HOME/Desktop/myexpos/spl/spl_progs/os_startup.xsm
 load --init $HOME/Desktop/myexpos/expl/expl_progs/shell.xsm
-load --exec /home/arjun/Desktop/myexpos/expl/expl_progs/even.xsm
-load --idle /home/arjun/Desktop/myexpos/expl/expl_progs/idle.xsm
+load --exec $HOME/Desktop/myexpos/expl/expl_progs/even.xsm
+load --idle $HOME/Desktop/myexpos/expl/expl_progs/idle.xsm
 load --library $HOME/Desktop/myexpos/expl/library.lib
-load --module 0 /home/arjun/Desktop/myexpos/spl/spl_progs/resource_manager.xsm
-load --module 1 /home/arjun/Desktop/myexpos/spl/spl_progs/process_manager.xsm
-load --module 2 /home/arjun/Desktop/myexpos/spl/spl_progs/memory_manager.xsm
-load --module 4 /home/arjun/Desktop/myexpos/spl/spl_progs/device_manager.xsm
-load --module 5 /home/arjun/Desktop/myexpos/spl/spl_progs/scheduler.xsm
+load --module 0 $HOME/Desktop/myexpos/spl/spl_progs/resource_manager.xsm
+load --module 1 $HOME/Desktop/myexpos/spl/spl_progs/process_manager.xsm
+load --module 2 $HOME/Desktop/myexpos/spl/spl_progs/memory_manager.xsm
+load --module 4 $HOME/Desktop/myexpos/spl/spl_progs/device_manager.xsm
+load --module 5 $HOME/Desktop/myexpos/spl/spl_progs/scheduler.xsm
 load --module 7 $HOME/Desktop/myexpos/spl/spl_progs/boot_module.xsm

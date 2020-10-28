@@ -105,9 +105,16 @@ PTBR=PAGE_TABLE_BASE+20;
 [PROCESS_TABLE + 16 + 15] = 10;
 [76*512] = [65*512+1];
 
+//setting per process table of init
+alias per_process_itr R0;
+per_process_itr = 0;
+per_process_itr = 0;
+while (per_process_itr<16) do
+    [[PROCESS_TABLE + 16 + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ] = -1;  
+    per_process_itr = per_process_itr + 1; 
+endwhile;
 //setting state of remaining process to Terminated
 //there are 16 process
-alias state R0;
 alias current R1;
 // there are 16 process 0 - 15
 current = 2;
