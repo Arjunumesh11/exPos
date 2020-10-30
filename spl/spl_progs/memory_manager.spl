@@ -53,6 +53,14 @@ if(functionNum == RELEASE_PAGE) then
     endif;   
     return;
 endif;
+
+//release block 
+if(functionNum == RELEASE_BLOCK) then
+    alias block_num R3;
+    [DISK_FREE_LIST + block_num] = [DISK_FREE_LIST + block_num] - 1;
+    return;
+endif;
+
 // get code page 5
 // R1 function number
 // R2 block number
