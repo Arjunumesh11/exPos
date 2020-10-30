@@ -70,22 +70,18 @@ else
     //getting page for stack and heap;
     multipush(R1,R2,R3,R4);
     //get page table function
-    function_num = 1; 
-    call MEMORY_MANAGER;
     //Heap
-    [PTBR+4] = R0;
-    [PTBR+5] = "0110";
-    function_num = 1; 
-    call MEMORY_MANAGER;
-    [PTBR+6] = R0;
-    [PTBR+7] = "0110";
+    [PTBR+4] = -1;
+    [PTBR+5] = "0000";
+    [PTBR+6] = -1;
+    [PTBR+7] = "0000";
     
     //Stack
-    function_num = 1; 
+    function_num = GET_FREE_PAGE; 
     call MEMORY_MANAGER;
     [PTBR+16] = R0;
     [PTBR+17] = "0110";
-    function_num = 1; 
+    function_num = GET_FREE_PAGE; 
     call MEMORY_MANAGER;
     [PTBR+18] = R0;
     [PTBR+19] = "0110";
@@ -97,51 +93,35 @@ else
         multipush(R1,R2,R3,R4);
         //get page table function
         // print "code";
-        function_num = 1; 
+        
+        function_num = GET_CODE_PAGE; 
+        R2 = [INODE_TABLE + 16*inode_itr + 8]; //block number
         call MEMORY_MANAGER;
         [PTBR+8] = R0;
         [PTBR+9] = "0100";
         multipop(R1,R2,R3,R4);
-        block_num = [INODE_TABLE + 16*inode_itr + 8];
-        page_num = [PTBR +8]; 
-        call mem_manager;
+    else 
+    print "DISK : no code page";
     endif;
-    if ([INODE_TABLE + 16*inode_itr + 9]!=-1) then
-        multipush(R1,R2,R3,R4);
-        //get page table function
-        function_num = 1; 
-        call MEMORY_MANAGER;
-        [PTBR+10] = R0;
-        [PTBR+11] = "0100";
-        multipop(R1,R2,R3,R4);
-        block_num = [INODE_TABLE + 16*inode_itr + 9];
-        page_num = [PTBR + 10 ]; 
-        call mem_manager;
-    endif;
-    if ([INODE_TABLE + 16*inode_itr + 10]!=-1) then
-        multipush(R1,R2,R3,R4);
-        //get page table function
-        function_num = 1; 
-        call MEMORY_MANAGER;
-        [PTBR+12] = R0;
-        [PTBR+13] = "0100";
-        multipop(R1,R2,R3,R4);   
-        block_num = [INODE_TABLE + 16*inode_itr + 10];
-        page_num = [PTBR + 12 ]; 
-        call mem_manager;
-    endif;
-    if ([INODE_TABLE + 16*inode_itr + 11]!=-1) then
-        multipush(R1,R2,R3,R4);
-        //get page table function
-        function_num = 1; 
-        call MEMORY_MANAGER;
-        [PTBR+14] = R0;
-        [PTBR+15] = "0100";
-        multipop(R1,R2,R3,R4);
-        block_num = [INODE_TABLE + 16*inode_itr + 11];
-        page_num = [PTBR + 14 ]; 
-        call mem_manager;
-    endif; 
+    //setting diskmap table 
+    [DISK_MAP_TABLE+ 10*current_pid ] = -1;
+    [DISK_MAP_TABLE+ 10*current_pid + 1] = -1;
+    [DISK_MAP_TABLE+ 10*current_pid + 2] = -1;
+    [DISK_MAP_TABLE+ 10*current_pid + 3] = -1;
+    [DISK_MAP_TABLE+ 10*current_pid + 4] = [INODE_TABLE + 16*inode_itr + 8];
+    [DISK_MAP_TABLE+ 10*current_pid + 5] = [INODE_TABLE + 16*inode_itr + 9];
+    [DISK_MAP_TABLE+ 10*current_pid + 6] = [INODE_TABLE + 16*inode_itr + 10];
+    [DISK_MAP_TABLE+ 10*current_pid + 7] = [INODE_TABLE + 16*inode_itr + 11];
+    [DISK_MAP_TABLE+ 10*current_pid + 8] = -1;
+    [DISK_MAP_TABLE+ 10*current_pid + 9] = -1;
+    //invalidating rest of code page
+    [PTBR+10] = -1;
+    [PTBR+11] = "0000";
+    [PTBR+12] = -1;
+    [PTBR+13] = "0000";
+    [PTBR+14] = -1;
+    [PTBR+15] = "0000";
+    
         alias stack_mem R5;
         alias code_mem R6;
 
