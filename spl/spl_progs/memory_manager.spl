@@ -92,11 +92,11 @@ if(functionNum == GET_CODE_PAGE) then
     multipop(R1,R2,R3,R4,R5);
     R3 = R0;
     R4 = R2;
-    call mem_manager;
+    call disk_load;
     return;
 endif;
 
-mem_manager:
+disk_load:
     // print "mem";
     multipush(R0,R1,R2,R3,R4,R5);
     R1 = DISK_LOAD;
