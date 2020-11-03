@@ -35,8 +35,8 @@ if(inode_itr==MAX_FILE_NUM) then
     print "NO file";
     [[PTBR + 2*(userSP - 1)/512]*512 + (userSP-1)%512] = -1;
 else 
-print "before exit";
-breakpoint;
+//print "before exit";
+//breakpoint;
     multipush(R1,R2,R3,R4);
     alias function_num R1;
     alias PID R2;
@@ -50,8 +50,8 @@ breakpoint;
     [MEMORY_FREE_LIST + [process_table + 11]] = 1;
     //reducing mem_count
     [SYSTEM_STATUS_TABLE + 2] = [SYSTEM_STATUS_TABLE + 2]-1;
-    print "after exit";
-    breakpoint;
+    //print "after exit";
+    //breakpoint;
     SP = [process_table + 11]*512 - 1;
     [process_table + 7] = inode_itr;
     [process_table + 4] = RUNNING;
@@ -80,8 +80,8 @@ breakpoint;
     [PTBR+5] = "0000";
     [PTBR+6] = -1;
     [PTBR+7] = "0000";
-    print "userpage";
-    breakpoint;
+    //print "userpage";
+   // breakpoint;
     //Stack
     function_num = GET_FREE_PAGE; 
     call MEMORY_MANAGER;
