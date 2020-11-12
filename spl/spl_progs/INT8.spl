@@ -1,0 +1,134 @@
+//fork systen call
+alias userSP R1;
+alias current_pid R2;
+current_pid = [SYSTEM_STATUS_TABLE + 1 ];
+[PROCESS_TABLE + 16*current_pid +9 ] = INT_FORK;
+
+//fetching stack address
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+//print SP;
+userSP = SP;
+SP = [PROCESS_TABLE + (current_pid`* 16) + 11] * 512 - 1;
+
+backup;
+//getting PCB entery
+multipush(R1,R2);
+R1 = GET_PCB_ENTRY;
+call PROCESS_MANAGER;
+multipop(R1,R2);
+// if no process slot is free
+
+alias new_PID R3;
+new_PID = R0;
+
+if (R0 == -1) then
+    alias physicalAddrRetVal R4;
+    physicalAddrRetVal = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+    [physicalAddrRetVal] = -1;
+    restore;
+    [PROCESS_TABLE + 16*current_pid +9 ] = 0;
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    ireturn;
+endif;
+//checking heap page of parent program
+alias page_table_loc R4;
+page_table_loc  = PAGE_TABLE_BASE +20*current_pid;
+if([page_table_loc + 4] == -1) then
+    multipush(R1,R2,R3);
+    R1 = GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    [PAGE_TABLE_BASE + 20*current_pid + 4 ] = R0;
+    [PAGE_TABLE_BASE + 20*current_pid + 5 ] = "1110";
+    multipop(R1,R2,R3);
+    multipush(R1,R2,R3);
+    R1 = GET_FREE_PAGE;
+    call MEMORY_MANAGER;
+    [PAGE_TABLE_BASE + 20*current_pid + 6 ] = R0;
+    [PAGE_TABLE_BASE + 20*current_pid + 7 ] = "1110";
+    multipop(R1,R2,R3);
+endif;
+//allocating pages for child procss
+multipush(R1,R2,R3);
+R1 = GET_FREE_PAGE;
+call MEMORY_MANAGER;
+[PAGE_TABLE_BASE + 20*new_PID + 16 ] = R0;
+[PAGE_TABLE_BASE + 20*new_PID + 17 ] = "0110";
+multipop(R1,R2,R3);
+multipush(R1,R2,R3);
+R1 = GET_FREE_PAGE;
+call MEMORY_MANAGER;
+[PAGE_TABLE_BASE + 20*new_PID + 18 ] = R0;
+[PAGE_TABLE_BASE + 20*new_PID + 19 ] = "0110";
+multipop(R1,R2,R3);
+//user area page
+multipush(R1,R2,R3);
+R1 = GET_FREE_PAGE;
+call MEMORY_MANAGER;
+[PROCESS_TABLE + 16*new_PID + 11] = R0;
+multipop(R1,R2,R3);
+//intialising process table of child
+[PROCESS_TABLE + 16*new_PID + 3] = [PROCESS_TABLE + 16*current_pid + 3];    //userid
+[PROCESS_TABLE + 16*new_PID + 6] = [PROCESS_TABLE + 16*current_pid + 6];    //swapflag
+[PROCESS_TABLE + 16*new_PID + 7] = [PROCESS_TABLE + 16*current_pid + 7];    //inodeindex
+[PROCESS_TABLE + 16*new_PID + 10] = [PROCESS_TABLE + 16*current_pid + 10];  //userare_swap
+[PROCESS_TABLE + 16*new_PID + 13] = [PROCESS_TABLE + 16*current_pid + 13];  //UPTR
+
+
+[PROCESS_TABLE + 16*new_PID + 9] = 0;   //mode
+[PROCESS_TABLE + 16*new_PID + 12] = 0;  //kptr
+[PROCESS_TABLE + 16*new_PID + 0] = 0;   //tick
+
+[PROCESS_TABLE + 16*new_PID + 2] = current_pid;//ppid
+[PROCESS_TABLE + 16*new_PID + 4] = CREATED;
+
+//perprocess_table
+alias per_process_itr R4;
+per_process_itr = 0;
+while (per_process_itr<16) do
+    [[PROCESS_TABLE + 16*new_PID + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ] = [[PROCESS_TABLE + 16*current_pid + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ];  
+    per_process_itr = per_process_itr + 1; 
+endwhile;
+//per_process disk table
+alias disk_map_itr R4;
+disk_map_itr = 0;
+while (disk_map_itr<10) do
+    [DISK_MAP_TABLE+ 10*new_PID + disk_map_itr ] = [DISK_MAP_TABLE+ 10*current_pid + disk_map_itr ];
+    disk_map_itr = disk_map_itr + 1; 
+endwhile;
+
+//page table
+alias page_itr R4;
+page_itr = 0;
+while (page_itr<16) do
+    [PAGE_TABLE_BASE + 20*new_PID + page_itr] = [PAGE_TABLE_BASE + 20*current_pid +page_itr]; 
+    page_itr = page_itr + 1; 
+endwhile;
+
+
+[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +4]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +4]] +1;
+[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +6]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +6]] +1;
+
+//copying stack page
+alias stack_itr R4;
+stack_itr = 0;
+while (stack_itr < 512) do
+    [[PAGE_TABLE_BASE + 20*new_PID + 16]*512 + stack_itr] = [[PAGE_TABLE_BASE + 20*current_pid + 16]*512 + stack_itr];
+endwhile;
+
+stack_itr = 0;
+while (stack_itr < 512) do
+    [[PAGE_TABLE_BASE + 20*new_PID + 18]*512 + stack_itr] = [[PAGE_TABLE_BASE + 20*current_pid + 18]*512 + stack_itr];
+endwhile;
+//setting BP register
+[[PROCESS_TABLE + 16*new_PID + 11]*512] = BP;
+
+alias physicalAddrRetVal R4;
+    physicalAddrRetVal = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+    [physicalAddrRetVal] = new_PID;
+    physicalAddrRetVal = ([PAGE_TABLE_BASE +20*new_PID + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
+    [physicalAddrRetVal] = 0; //child process
+    restore;
+    [PROCESS_TABLE + 16*current_pid + 9 ] = 0;
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    ireturn;
+
