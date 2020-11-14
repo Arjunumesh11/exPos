@@ -8,8 +8,7 @@ alias current_pid R2;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]* 16) + 11] * 512 - 1;
 backup;
 current_pid = [SYSTEM_STATUS_TABLE + 1 ];
-user_sp = SP;
-
+user_sp = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 multipush(EIP);
 if (EC != 0 ||user_sp ==PTLR*512-1 ) then
     print "Exception MOD ";
@@ -28,7 +27,9 @@ if (EC != 0 ||user_sp ==PTLR*512-1 ) then
     R1 = 3;//exit process
     call PROCESS_MANAGER;
     multipop(R1,R2);
+    multipush(R1,R2);
     call SCHEDULER;
+    multipop(R1,R2);
 endif;
 
 if (EC == 0) then

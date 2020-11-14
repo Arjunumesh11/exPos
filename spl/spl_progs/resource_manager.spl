@@ -11,7 +11,9 @@ if (functionNum == ACQUIRE_DISK) then
     // print "acq disk";
     while ([DISK_STATUS_TABLE]==1) do
         [PROCESS_TABLE + 16*currentPID + 4] = WAIT_DISK;
+        multipush(R1,R2);
         call SCHEDULER;
+        multipop(R1,R2,R3);
     endwhile;
     //status
     [DISK_STATUS_TABLE ] = 1;

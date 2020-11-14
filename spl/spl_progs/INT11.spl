@@ -1,2 +1,73 @@
 //int 10
 //getpid getppid wait signal
+alias user_sp R2;
+alias current_pid R1;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]* 16) + 11] * 512 - 1;
+current_pid = [SYSTEM_STATUS_TABLE + 1 ];
+user_sp = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+alias sys_call_num R3;
+sys_call_num = [[PTBR + 2*(user_sp - 5)/512]*512 + (user_sp-5)%512];
+
+
+//get_pid 11
+if (sys_call_num == INT_GETPID) then
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_GETPID;
+    alias PID R4;
+    PID = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 1];
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = PID;
+    ireturn;
+endif;
+//getppid 12
+if (sys_call_num == INT_GETPPID) then
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_GETPPID;
+    alias PPID R4;
+    PPID = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 2];
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = PPID;
+    ireturn;
+endif;
+//wait 13
+if (sys_call_num == INT_WAIT) then
+    alias PID R4;
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_WAIT;
+    PID = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
+    //checking validity
+    if (PID == current_pid || PID<0||PID>MAX_PROC_NUM) then
+        [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+        SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+        [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+        ireturn;        
+    endif;
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] +4 ] = WAIT_PROCESS;
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] +5 ] = PID;
+    multipush(R1,R2,R3,R4);
+    call SCHEDULER;
+    multipop(R1,R2,R3,R4);
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = 0;
+    ireturn;
+endif;
+//signal 14
+if (sys_call_num == INT_SIGNAL) then
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_SIGNAL;
+    alias process_itr R4;
+    process_itr = 0;
+    while (process_itr < MAX_PROC_NUM) do
+        if ([PROCESS_TABLE + 16*process_itr + 4 ] == WAIT_PROCESS) then
+            if([PROCESS_TABLE + 16*process_itr + 5 ] == current_pid) then
+                [PROCESS_TABLE + 16*process_itr + 4 ] = READY;
+                [PROCESS_TABLE + 16*process_itr + 5 ] = -1;
+            endif;
+        endif;
+        process_itr = process_itr + 1;
+    endwhile;
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = 0;
+    ireturn;
+endif;
