@@ -1,4 +1,6 @@
 //fork systen call
+print "fork";
+//breakpoint;
 alias userSP R1;
 alias current_pid R2;
 current_pid = [SYSTEM_STATUS_TABLE + 1 ];
@@ -10,14 +12,15 @@ current_pid = [SYSTEM_STATUS_TABLE + 1 ];
 userSP = SP;
 SP = [PROCESS_TABLE + (current_pid`* 16) + 11] * 512 - 1;
 
-backup;
+// backup;
 //getting PCB entery
 multipush(R1,R2);
 R1 = GET_PCB_ENTRY;
 call PROCESS_MANAGER;
 multipop(R1,R2);
 // if no process slot is free
-
+print "PCB";
+//breakpoint;
 alias new_PID R3;
 new_PID = R0;
 
@@ -25,7 +28,7 @@ if (R0 == -1) then
     alias physicalAddrRetVal R4;
     physicalAddrRetVal = ([PTBR + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
     [physicalAddrRetVal] = -1;
-    restore;
+    // restore;
     [PROCESS_TABLE + 16*current_pid +9 ] = 0;
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
     ireturn;
@@ -37,35 +40,37 @@ if([page_table_loc + 4] == -1) then
     multipush(R1,R2,R3);
     R1 = GET_FREE_PAGE;
     call MEMORY_MANAGER;
-    [PAGE_TABLE_BASE + 20*current_pid + 4 ] = R0;
-    [PAGE_TABLE_BASE + 20*current_pid + 5 ] = "1110";
+    [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 4 ] = R0;
+    [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 5 ] = "1110";
     multipop(R1,R2,R3);
     multipush(R1,R2,R3);
     R1 = GET_FREE_PAGE;
     call MEMORY_MANAGER;
-    [PAGE_TABLE_BASE + 20*current_pid + 6 ] = R0;
-    [PAGE_TABLE_BASE + 20*current_pid + 7 ] = "1110";
+    [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 6 ] = R0;
+    [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + 7 ] = "1110";
     multipop(R1,R2,R3);
 endif;
 //allocating pages for child procss
 multipush(R1,R2,R3);
 R1 = GET_FREE_PAGE;
 call MEMORY_MANAGER;
+multipop(R1,R2,R3);
 [PAGE_TABLE_BASE + 20*new_PID + 16 ] = R0;
 [PAGE_TABLE_BASE + 20*new_PID + 17 ] = "0110";
-multipop(R1,R2,R3);
 multipush(R1,R2,R3);
 R1 = GET_FREE_PAGE;
 call MEMORY_MANAGER;
+multipop(R1,R2,R3);
 [PAGE_TABLE_BASE + 20*new_PID + 18 ] = R0;
 [PAGE_TABLE_BASE + 20*new_PID + 19 ] = "0110";
-multipop(R1,R2,R3);
 //user area page
+
 multipush(R1,R2,R3);
 R1 = GET_FREE_PAGE;
 call MEMORY_MANAGER;
-[PROCESS_TABLE + 16*new_PID + 11] = R0;
+
 multipop(R1,R2,R3);
+[PROCESS_TABLE + 16*new_PID + 11] = R0;
 //intialising process table of child
 [PROCESS_TABLE + 16*new_PID + 3] = [PROCESS_TABLE + 16*current_pid + 3];    //userid
 [PROCESS_TABLE + 16*new_PID + 6] = [PROCESS_TABLE + 16*current_pid + 6];    //swapflag
@@ -113,11 +118,13 @@ alias stack_itr R4;
 stack_itr = 0;
 while (stack_itr < 512) do
     [[PAGE_TABLE_BASE + 20*new_PID + 16]*512 + stack_itr] = [[PAGE_TABLE_BASE + 20*current_pid + 16]*512 + stack_itr];
+    stack_itr = stack_itr+1;
 endwhile;
 
 stack_itr = 0;
 while (stack_itr < 512) do
     [[PAGE_TABLE_BASE + 20*new_PID + 18]*512 + stack_itr] = [[PAGE_TABLE_BASE + 20*current_pid + 18]*512 + stack_itr];
+    stack_itr = stack_itr+1;
 endwhile;
 //setting BP register
 [[PROCESS_TABLE + 16*new_PID + 11]*512] = BP;
@@ -127,8 +134,10 @@ alias physicalAddrRetVal R4;
     [physicalAddrRetVal] = new_PID;
     physicalAddrRetVal = ([PAGE_TABLE_BASE +20*new_PID + 2 * ((userSP - 1) / 512)] * 512) + ((userSP - 1) % 512);
     [physicalAddrRetVal] = 0; //child process
-    restore;
+    // restore;
     [PROCESS_TABLE + 16*current_pid + 9 ] = 0;
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    print "fork_exit";
+    //breakpoint;
     ireturn;
 

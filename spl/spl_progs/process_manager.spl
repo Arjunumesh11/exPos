@@ -20,6 +20,8 @@ if (functionNum == GET_PCB_ENTRY) then
             [PROCESS_TABLE + 16*process_itr + 14] = PAGE_TABLE_BASE + 20*process_itr;
             [PROCESS_TABLE + 16*process_itr + 15] = 10 ;
             R0 = process_itr;
+            print "get_pcb";
+            // breakpoint;
             return;
     endif;
     process_itr = process_itr + 1;

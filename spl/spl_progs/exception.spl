@@ -1,29 +1,28 @@
 //exception handler
-//breakpoint;
-//print "except";
 alias user_sp R1;
 alias current_pid R2;
-current_pid = [SYSTEM_STATUS_TABLE + 1 ];
-[PROCESS_TABLE + 16*current_pid +9 ] = -1;
+[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = -1;
 //fetching stack address
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 //print SP;
-user_sp = SP;
-SP = [PROCESS_TABLE + (current_pid`* 16) + 11] * 512 - 1;
-//print SP;
-//print "SP";
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]* 16) + 11] * 512 - 1;
 backup;
+current_pid = [SYSTEM_STATUS_TABLE + 1 ];
+user_sp = SP;
+
 multipush(EIP);
 if (EC != 0 ||user_sp ==PTLR*512-1 ) then
-    print "Exception MOD 1 ";
+    print "Exception MOD ";
     if (EC == 1) then
-        print "illegal instruction";
+        breakpoint;
+        print "illegal instr";
     endif;
     if (EC == 2) then
-        print "illegal memory access";
+        breakpoint;
+        print "illegal mem";
     endif;
     if (EC == 3) then
-        print "arithmetic";
+        print "arithme";
     endif;
     multipush(R1,R2);
     R1 = 3;//exit process
@@ -31,10 +30,10 @@ if (EC != 0 ||user_sp ==PTLR*512-1 ) then
     multipop(R1,R2);
     call SCHEDULER;
 endif;
-//breakpoint;
+
 if (EC == 0) then
     alias block_num R3;
-    block_num = [DISK_MAP_TABLE + 10*current_pid + EPN ];
+    block_num = [DISK_MAP_TABLE + 10*[SYSTEM_STATUS_TABLE + 1] + EPN ];
     //checking if code page error
     if EPN == 4 || EPN == 5 || EPN == 6 || EPN ==7 then
         multipush(R1,R2,R3);
@@ -42,31 +41,36 @@ if (EC == 0) then
             R2 = block_num;
             call MEMORY_MANAGER;
         multipop(R1,R2,R3);
-        [PAGE_TABLE_BASE + 20*current_pid + EPN*2 ] = R0;
-        [PAGE_TABLE_BASE + 20*current_pid + EPN*2 + 1 ] = "1100";
+        [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + EPN*2 ] = R0;
+        [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + EPN*2 + 1 ] = "1100";
     else
-    //heap and (Stack ?)
-//breakpoint;
-//print "heap";
+
+
         multipush(R1,R2,R3);
+
             R1 = GET_FREE_PAGE;
             call MEMORY_MANAGER;
-            [PAGE_TABLE_BASE + 20*current_pid + EPN*2 ] = R0;
-            [PAGE_TABLE_BASE + 20*current_pid + EPN*2 + 1 ] = "1110";
+            [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + EPN*2 ] = R0;
+
+            [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + EPN*2 + 1 ] = "1110";
+
         multipop(R1,R2,R3);
         multipush(R1,R2,R3);
             R1 = GET_FREE_PAGE;
             call MEMORY_MANAGER;
-            [PAGE_TABLE_BASE + 20*current_pid + (EPN+1)*2  ] = R0;
-            [PAGE_TABLE_BASE + 20*current_pid + (EPN+1)*2 + 1 ] = "1110";
+            [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + (EPN+1)*2  ] = R0;
+            [PAGE_TABLE_BASE + 20*[SYSTEM_STATUS_TABLE + 1] + (EPN+1)*2 + 1 ] = "1110";
         multipop(R1,R2,R3);
+
     endif;
 endif;
 
 [PROCESS_TABLE + 16*current_pid +9 ] = 0;
-multipop(EIP);
+multipop (EIP);
+
 restore;
+
 SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 SP =SP+1;
-[[PAGE_TABLE_BASE +20*current_pid + 2*(SP/512)]*512 + SP%512] = EIP;
+[[PAGE_TABLE_BASE +20*[SYSTEM_STATUS_TABLE + 1] + 2*(SP/512)]*512 + SP%512] = EIP;
 ireturn;

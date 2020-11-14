@@ -1,3 +1,4 @@
+//exit ysytem call
 alias current_pid R0;
 alias current_process R1;
 
@@ -5,6 +6,17 @@ alias current_process R1;
 
 current_pid = [SYSTEM_STATUS_TABLE + 1];
 current_process = PROCESS_TABLE + current_pid * 16;
+[PROCESS_TABLE + 16*current_pid +9 ] = INT_EXIT;
+alias userSP R2;
+userSP = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+//calling exit process
+multipush(R0,R1,R2);
+    R1 = EXIT_PROCESS;
+    R2 = current_pid;
+    call PROCESS_MANAGER;
+multipop(R0,R1,R2);
 [current_process + 4 ] = TERMINATED;
 
 alias process_itr R2;

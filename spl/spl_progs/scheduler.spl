@@ -35,7 +35,6 @@ if(flag == 0) then
     current_pid = 0;
 endif;
 new_pid = current_pid;
-
 [SYSTEM_STATUS_TABLE + 1] = new_pid;
 new_process = PROCESS_TABLE + 16*new_pid;
 

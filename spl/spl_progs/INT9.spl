@@ -121,6 +121,7 @@ else
     [DISK_MAP_TABLE+ 10*current_pid + 8] = -1;
     [DISK_MAP_TABLE+ 10*current_pid + 9] = -1;
     //invalidating rest of code page
+    
     [PTBR+10] = -1;
     [PTBR+11] = "0000";
     [PTBR+12] = -1;

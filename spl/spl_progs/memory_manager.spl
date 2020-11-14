@@ -14,7 +14,7 @@ if(functionNum == GET_FREE_PAGE) then
     //while mem is full schedule other process
     while ([SYSTEM_STATUS_TABLE + 2 ]==0) do
         //setting current process state to WAIT_MEM_COUNT
-        [PROCESS_TABLE + 16*currentPID + 4] = WAIT_MEM;
+        [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE] + 4] = WAIT_MEM;
         call SCHEDULER;
     endwhile;
     //decrement mem_wait_count 
@@ -34,6 +34,7 @@ if(functionNum == GET_FREE_PAGE) then
         endif;
         free_page_itr = free_page_itr + 1;
     endwhile;
+   
     return;
 endif;
 
@@ -65,20 +66,27 @@ endif;
 // R1 function number
 // R2 block number
 if(functionNum == GET_CODE_PAGE) then
+
+    alias block_num R2;
     alias process_itr R3 ; //16
     alias disk_map_itr R4;
     alias flag R5;
     flag = 0;
-    process_itr = 0;
+    process_itr = 1;
     while (process_itr < MAX_PROC_NUM) do
             disk_map_itr = 0;
             while (disk_map_itr<10) do
-                if([DISK_MAP_TABLE + 10*process_itr + disk_map_itr] == R2) then
+                if([DISK_MAP_TABLE + 10*process_itr + disk_map_itr] == block_num) then
+                  if ([PAGE_TABLE_BASE + 20*process_itr+2*disk_map_itr]!=-1) then
                     flag = 1;
                     break;
+                  endif;
                 endif;
                 disk_map_itr = disk_map_itr + 1;
             endwhile;
+            if(flag==1) then
+                break;
+            endif;
             process_itr = process_itr +1;
     endwhile;
     if(flag == 1) then
@@ -92,7 +100,10 @@ if(functionNum == GET_CODE_PAGE) then
     multipop(R1,R2,R3,R4,R5);
     R3 = R0;
     R4 = R2;
+
     call disk_load;
+ 
+    
     return;
 endif;
 
