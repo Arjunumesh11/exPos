@@ -1,5 +1,4 @@
 //fork systen call
-print "fork";
 //breakpoint;
 alias userSP R1;
 alias current_pid R2;
@@ -19,7 +18,6 @@ R1 = GET_PCB_ENTRY;
 call PROCESS_MANAGER;
 multipop(R1,R2);
 // if no process slot is free
-print "PCB";
 //breakpoint;
 alias new_PID R3;
 new_PID = R0;
@@ -137,7 +135,6 @@ alias physicalAddrRetVal R4;
     // restore;
     [PROCESS_TABLE + 16*current_pid + 9 ] = 0;
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-    print "fork_exit";
     //breakpoint;
     ireturn;
 
