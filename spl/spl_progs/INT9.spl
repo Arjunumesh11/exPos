@@ -11,7 +11,7 @@ current_pid = [SYSTEM_STATUS_TABLE + 1];
 // print current_pid;
 process_table = PROCESS_TABLE + 16*current_pid;
 //setting mod to 9 systemcall no
-[process_table + 9] = 9;
+[process_table + 9] = INT_EXEC;
 
 [process_table + 13] = SP;
 SP = [process_table + 11]*512 - 1;

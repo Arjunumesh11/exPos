@@ -59,6 +59,22 @@ if (functionNum == 3) then
     call PROCESS_MANAGER;
     multipop(R1,R2,R3);    
     [ process_table + 4 ] =TERMINATED;
+    if([PROCESS_TABLE +16*currentPID + 9]!=INT_EXEC) then
+        alias process_itr R4;
+        process_itr = 0;
+        while (process_itr < MAX_PROC_NUM) do
+            if ([PROCESS_TABLE + 16*process_itr + 4 ] == WAIT_PROCESS) then
+                if([PROCESS_TABLE + 16*process_itr + 5 ] == currentPID) then
+                    [PROCESS_TABLE + 16*process_itr + 4 ] = READY;
+                    [PROCESS_TABLE + 16*process_itr + 5 ] = -1;
+                endif;
+            endif;
+            if ([PROCESS_TABLE + 16*process_itr +  2] == currentPID) then
+                [PROCESS_TABLE + 16*process_itr +  2] = -1;
+            endif;
+            process_itr = process_itr + 1;
+        endwhile;
+    endif;
     return;
 endif;
 //Free page table
