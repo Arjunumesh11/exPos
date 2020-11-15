@@ -1,18 +1,16 @@
-rm even.xsm
 load --int=6 $HOME/Desktop/exPos/spl/spl_progs/INT6.xsm
 load --int=7 $HOME/Desktop/exPos/spl/spl_progs/INT7.xsm
 load --int=8 $HOME/Desktop/exPos/spl/spl_progs/INT8.xsm
 load --int=9 $HOME/Desktop/exPos/spl/spl_progs/INT9.xsm
-load --int=10 $HOME/Desktop/exPos/spl/spl_progs/INIT10.xsm
-load --int=11 $HOME/Desktop/exPos/spl/spl_progs/INIT11.xsm
-load --int=15 $HOME/Desktop/exPos/spl/spl_progs/INIT15.xsm
+load --int=10 $HOME/Desktop/exPos/spl/spl_progs/INT10.xsm
+load --int=11 $HOME/Desktop/exPos/spl/spl_progs/INT11.xsm
+load --int=15 $HOME/Desktop/exPos/spl/spl_progs/INT15.xsm
 load --int=timer $HOME/Desktop/exPos/spl/spl_progs/sample_timer.xsm
 load --int=console $HOME/Desktop/exPos/spl/spl_progs/console_interupt.xsm
 load --int=disk $HOME/Desktop/exPos/spl/spl_progs/disk_interupt.xsm
 load --exhandler $HOME/Desktop/exPos/spl/spl_progs/exception.xsm
 load --os $HOME/Desktop/exPos/spl/spl_progs/os_startup.xsm
-load --init $HOME/Desktop/exPos/expl/expl_progs/shell.xsm
-load --exec $HOME/Desktop/exPos/expl/expl_progs/even.xsm
+load --init $HOME/Desktop/exPos/expl/expl_progs/shell_V2.xsm
 load --idle $HOME/Desktop/exPos/expl/expl_progs/idle.xsm
 load --library $HOME/Desktop/exPos/expl/library.lib
 load --module 0 $HOME/Desktop/exPos/spl/spl_progs/resource_manager.xsm
