@@ -39,6 +39,21 @@ if (functionNum == FREE_USER_AREA_PAGE) then
     process_table = PROCESS_TABLE + 16*currentPID;
     //release page
     block_num = [process_table + 11];
+    alias per_entry R4;
+    alias per_process R6;
+    per_process = block_num*512 + RESOURCE_TABLE_OFFSET;
+    alias per_process_itr R7; 
+        per_process_itr = 0;
+        while (per_process_itr <16) do
+            if ([per_process + per_process_itr]==SEMAPHORE) then
+                multipush(R1,R2,R3,R4,R5,R6);
+                R1 = RELEASE_SEMAPHORE;
+                R2 =  [per_process + per_process_itr + 1 ];
+                call RESOURCE_MANAGER;
+            multipop(R1,R2,R3,R4,R5,R6);
+            endif;
+            per_process_itr = per_process_itr + 2;        
+        endwhile;
     call release_page;
     return;
 endif;

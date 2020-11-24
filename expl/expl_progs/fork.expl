@@ -44,7 +44,7 @@ begin
     pid = exposcall("Fork");
     temp = exposcall("Write",-2,"PID");
     temp = exposcall("Write",-2,pid);
-    breakpoint;
+    b
     if(pid == 0) then
         p = head;
         while(p != null)  do

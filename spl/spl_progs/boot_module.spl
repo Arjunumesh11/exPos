@@ -48,6 +48,12 @@ loadi(23,36);
 //int11
 loadi(24,37);
 loadi(25,38);
+//int13
+loadi(28,41);
+loadi(29,42);
+//int14
+loadi(30,43);
+loadi(31,44);
 //int15
 loadi(32,45);
 loadi(33,46);
@@ -137,6 +143,15 @@ per_process_itr = 0;
 while (per_process_itr<16) do
     [[PROCESS_TABLE + 16 + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ] = -1;  
     per_process_itr = per_process_itr + 1; 
+endwhile;
+//semtable
+alias sem_itr R0;
+sem_itr = 0;
+
+while (sem_itr<MAX_SEM_COUNT) do
+    [SEMAPHORE_TABLE + 4*sem_itr ] = -1; //locking PID
+    [SEMAPHORE_TABLE + 4*sem_itr + 1] = 0; //count
+    sem_itr = sem_itr + 1;
 endwhile;
 //setting state of remaining process to Terminated
 //there are 16 process

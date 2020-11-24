@@ -68,27 +68,39 @@ R1 = GET_FREE_PAGE;
 call MEMORY_MANAGER;
 
 multipop(R1,R2,R3);
+alias process_table_new R4;
+alias process_table_current R5;
+process_table_new = PROCESS_TABLE + 16*new_PID; 
+process_table_current = PROCESS_TABLE + 16*current_pid; 
 [PROCESS_TABLE + 16*new_PID + 11] = R0;
 //intialising process table of child
-[PROCESS_TABLE + 16*new_PID + 3] = [PROCESS_TABLE + 16*current_pid + 3];    //userid
-[PROCESS_TABLE + 16*new_PID + 6] = [PROCESS_TABLE + 16*current_pid + 6];    //swapflag
-[PROCESS_TABLE + 16*new_PID + 7] = [PROCESS_TABLE + 16*current_pid + 7];    //inodeindex
-[PROCESS_TABLE + 16*new_PID + 10] = [PROCESS_TABLE + 16*current_pid + 10];  //userare_swap
-[PROCESS_TABLE + 16*new_PID + 13] = [PROCESS_TABLE + 16*current_pid + 13];  //UPTR
+[process_table_new + 3] = [process_table_current + 3];    //userid
+[process_table_new + 6] = [process_table_current + 6];    //swapflag
+[process_table_new + 7] = [process_table_current + 7];    //inodeindex
+[process_table_new + 10] = [process_table_current + 10];  //userare_swap
+[process_table_new + 13] = [process_table_current + 13];  //UPTR
 
 
-[PROCESS_TABLE + 16*new_PID + 9] = 0;   //mode
-[PROCESS_TABLE + 16*new_PID + 12] = 0;  //kptr
-[PROCESS_TABLE + 16*new_PID + 0] = 0;   //tick
+[process_table_new + 9] = 0;   //mode
+[process_table_new + 12] = 0;  //kptr
+[process_table_new + 0] = 0;   //tick
 
-[PROCESS_TABLE + 16*new_PID + 2] = current_pid;//ppid
-[PROCESS_TABLE + 16*new_PID + 4] = CREATED;
+[process_table_new + 2] = current_pid;//ppid
+[process_table_new + 4] = CREATED;
 
 //perprocess_table
 alias per_process_itr R4;
+alias per_process_table_new R5;
+alias per_process_table_current R6;
 per_process_itr = 0;
-while (per_process_itr<16) do
-    [[PROCESS_TABLE + 16*new_PID + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ] = [[PROCESS_TABLE + 16*current_pid + 11]*512 + RESOURCE_TABLE_OFFSET + per_process_itr ];  
+while (per_process_itr<8) do
+    per_process_table_new = [PROCESS_TABLE + 16*new_PID + 11]*512 + RESOURCE_TABLE_OFFSET + 2*per_process_itr ;
+    per_process_table_current = [PROCESS_TABLE + 16*current_pid + 11]*512 + RESOURCE_TABLE_OFFSET + 2*per_process_itr;
+    [per_process_table_new ] = [per_process_table_current];  
+    [per_process_table_new + 1 ] = [per_process_table_current + 1];  
+    if ([per_process_table_new ] == SEMAPHORE) then
+        [SEMAPHORE_TABLE + [per_process_table_new +1] + 1] = [SEMAPHORE_TABLE + [per_process_table_new +1]+1] + 1; 
+    endif;
     per_process_itr = per_process_itr + 1; 
 endwhile;
 //per_process disk table
@@ -135,6 +147,7 @@ alias physicalAddrRetVal R4;
     // restore;
     [PROCESS_TABLE + 16*current_pid + 9 ] = 0;
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-    //breakpoint;
-    ireturn;
+    print "break";
+    breakpoint;
+ireturn;
 
