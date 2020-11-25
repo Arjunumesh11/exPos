@@ -30,6 +30,9 @@ loadi(9,22);
 //disk
 loadi(6,19);
 loadi(7,20);
+//int4
+loadi(10,23);
+loadi(11,24);
 //int6
 loadi(14,27);
 loadi(15,28);
@@ -152,6 +155,25 @@ while (sem_itr<MAX_SEM_COUNT) do
     [SEMAPHORE_TABLE + 4*sem_itr ] = -1; //locking PID
     [SEMAPHORE_TABLE + 4*sem_itr + 1] = 0; //count
     sem_itr = sem_itr + 1;
+endwhile;
+//intialsing filestatus
+alias file_itr R0;
+file_itr = 0;
+
+while (file_itr<MAX_FILE_NUM) do
+    [FILE_STATUS_TABLE + 4*file_itr ] = -1; //locking PID
+    [FILE_STATUS_TABLE + 4*file_itr + 1] = -1; //count
+    file_itr = file_itr + 1;
+endwhile;
+//buffer_table
+alias buffer_itr R0;
+buffer_itr = 0;
+
+while (buffer_itr<MAX_BUFFER) do
+    [BUFFER_TABLE + 4*buffer_itr ] = -1; //block num
+    [BUFFER_TABLE + 4*buffer_itr + 1] = 0; //dirtybit
+    [BUFFER_TABLE + 4*buffer_itr + 2] = -1; //locking_pid
+    buffer_itr = buffer_itr + 1;
 endwhile;
 //setting state of remaining process to Terminated
 //there are 16 process
