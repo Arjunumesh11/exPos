@@ -9,20 +9,24 @@ current_pid = [SYSTEM_STATUS_TABLE + 1 ];
 user_sp = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
 alias sys_call_num R3;
 sys_call_num = [[PTBR + 2*(user_sp - 5)/512]*512 + (user_sp-5)%512];
+alias return_para R10;
+return_para = [PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512;
+alias process_state R11;
+process_state= PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ;
 //create sys call 1
 if(sys_call_num == INT_CREATE) then
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 1;
-    alias file_name R4;
-    alias permission R5;
+    [process_state] = 1;
+    alias file_name R3;
+    alias permission R4;
     
     file_name = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
     permission = [[PTBR + 2*(user_sp - 3)/512]*512 + (user_sp-3)%512];
     //check if the file is present in inode table
-    alias inode_itr R6;
+    alias inode_itr R5;
     inode_itr = 1;
     while (inode_itr<MAX_FILE_NUM) do
         if([INODE_TABLE + 16*inode_itr + 1] == file_name) then
-            [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = 0;
+            [return_para] = 0;
             call retu_rn; //return lable down
         endif;
         inode_itr = inode_itr + 1;
@@ -36,7 +40,7 @@ if(sys_call_num == INT_CREATE) then
         inode_itr = inode_itr + 1;
     endwhile;
     if (inode_itr == MAX_FILE_NUM) then
-        [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+        [return_para] = -1;
         call retu_rn; //return lable down
     endif;
     alias inode_tab R7;
@@ -67,18 +71,18 @@ if(sys_call_num == INT_CREATE) then
 
     retu_rn:
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [process_state] = 0;
     ireturn;
 endif;
 
 
 //delete sys call 4
 if(sys_call_num == INT_DELETE) then
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_DELETE;
-    alias file_name R4;
+    [process_state] = INT_DELETE;
+    alias file_name R3;
     file_name = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
     //fetching inode index
-    alias inode_itr R5;
+    alias inode_itr R4;
     inode_itr = 1;
     while (inode_itr<MAX_FILE_NUM) do
         if([INODE_TABLE + 16*inode_itr + 1] == file_name) then
@@ -87,42 +91,42 @@ if(sys_call_num == INT_DELETE) then
         inode_itr = inode_itr + 1;
     endwhile;
     if (inode_itr == MAX_FILE_NUM) then
-        [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = 0;
+        [return_para] = 0;
             call ret_del; //return lable down
     endif;
     if([INODE_TABLE + 16*inode_itr]!=DATA) then
-        [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+        [return_para] = -1;
             call ret_del; //return lable down
     endif;
     //checking permssion
     if([INODE_TABLE + 16*inode_itr + 4 ] == EXCLUSIVE) then
         if([PROCESS_TABLE + 16*current_pid + 3]!=ROOT) then
             if ([INODE_TABLE + 16*inode_itr + 3]!=[PROCESS_TABLE + 16*current_pid + 3]) then
-                [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+                [return_para] = -1;
                 call ret_del; //return lable down
             endif;
         endif;
     endif;
     //accuquire inode 
-    multipush(R1,R2,R3,R4,R5);
+    multipush(R1,R2,R3,R4);
         R2 = current_pid;
         R1 = ACQUIRE_INODE;
         call RESOURCE_MANAGER;
-    multipop(R1,R2,R3,R4,R5);
+    multipop(R1,R2,R3,R4);
     //checking if file is opened by any process
     if([FILE_STATUS_TABLE + 4*inode_itr +1]!=-1) then
         [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -2;
         call ret_del; //return lable down
     endif;
     //releasing disk block checking buffer status
-    alias code_pg_itr R6;
+    alias code_pg_itr R5;
     code_pg_itr = 0;
     while (code_pg_itr < 4) do
         if([INODE_TABLE + 16*inode_itr + 8 + code_pg_itr]!=-1) then
             //checking buffer status
             //buffer number = disk_block%MAX_buffer
-            alias disk_block R7;
-            alias buffer_itr R8;
+            alias disk_block R6;
+            alias buffer_itr R7;
             disk_block = [INODE_TABLE + 16*inode_itr + 8 + code_pg_itr];
             buffer_itr =  disk_block%MAX_BUFFER;
             //checking buffer block
@@ -154,6 +158,6 @@ if(sys_call_num == INT_DELETE) then
     multipop(R1,R2,R3,R4,R5);
     ret_del:
     SP = user_sp;
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    [process_state] = 0;
     ireturn;
 endif;
