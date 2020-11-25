@@ -1,4 +1,52 @@
 //int 15
 //shutdown
+//fetching stack address
+alias current_pid R0;
+alias process_table R1;
 
+current_pid = [SYSTEM_STATUS_TABLE + 1]; 
+process_table = PROCESS_TABLE + current_pid * 16;
+
+            
+[PROCESS_TABLE + 16*current_pid +9 ] = INT_SHUTDOWN;
+alias user_sp R2;
+user_sp = SP;
+[PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
+if(current_pid != ROOT) then
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+else
+    alias block_num R4;
+    alias page_num R3;
+  //storeing......
+    //inode 
+    page_num = 59;
+    block_num =3 ;
+    call disk_store;
+    page_num = 60;
+    block_num = 4;
+    call disk_store;
+    //disk_free
+    page_num = 57;
+    block_num = 2;
+    call disk_store;
+    //root
+    page_num = 62;
+    block_num = 5;
+    call disk_store;
+
+endif;
+[process_table +9] = 0;
+SP = [process_table + 13];
+ireturn;
 halt;
+
+disk_store:
+    multipush(R0,R1,R2);
+        R2 = current_pid;
+        R1 = DISK_STORE;
+       // R3 = page_num;
+       // R4 = block_num;
+        call DEVICE_MANAGER;
+    multipop(R0,R1,R2);
+return;

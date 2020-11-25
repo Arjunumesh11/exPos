@@ -1,3 +1,4 @@
+load --int=4 $HOME/Desktop/exPos/spl/spl_progs/INT4.xsm
 load --int=6 $HOME/Desktop/exPos/spl/spl_progs/INT6.xsm
 load --int=7 $HOME/Desktop/exPos/spl/spl_progs/INT7.xsm
 load --int=8 $HOME/Desktop/exPos/spl/spl_progs/INT8.xsm
