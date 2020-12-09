@@ -52,6 +52,13 @@ if (functionNum == FREE_USER_AREA_PAGE) then
                 call RESOURCE_MANAGER;
             multipop(R1,R2,R3,R4,R5,R6);
             endif;
+            if ([per_process + per_process_itr]==FILE) then
+                multipush(R1,R2,R3,R4,R5,R6);
+                R1 = INT_CLOSE;
+                R2 =  [per_process + per_process_itr + 1 ];
+                call FILE_MANAGER;
+                multipop(R1,R2,R3,R4,R5,R6);
+            endif;
             per_process_itr = per_process_itr + 2;        
         endwhile;
     call release_page;

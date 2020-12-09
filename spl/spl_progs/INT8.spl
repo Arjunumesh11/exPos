@@ -28,7 +28,7 @@ if (R0 == -1) then
     [physicalAddrRetVal] = -1;
     // restore;
     [PROCESS_TABLE + 16*current_pid +9 ] = 0;
-    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    SP = [PROCESS_TABLE + ( current_pid * 16) + 13];
     ireturn;
 endif;
 //checking heap page of parent program
@@ -101,6 +101,11 @@ while (per_process_itr<8) do
     if ([per_process_table_new ] == SEMAPHORE) then
         [SEMAPHORE_TABLE + [per_process_table_new +1] + 1] = [SEMAPHORE_TABLE + [per_process_table_new +1]+1] + 1; 
     endif;
+    if ([per_process_table_new ] == FILE) then
+        alias open_table R7;
+        open_table =  OPEN_FILE_TABLE + [per_process_table_new + 1]*4 + 1;
+        [open_table] = [open_table] + 1;
+    endif;
     per_process_itr = per_process_itr + 1; 
 endwhile;
 //per_process disk table
@@ -119,9 +124,12 @@ while (page_itr<16) do
     page_itr = page_itr + 1; 
 endwhile;
 
-
-[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +4]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +4]] +1;
-[MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +6]] = [MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +6]] +1;
+alias page_table_new_4 R4;
+alias page_table_new_6 R5;
+page_table_new_4 = MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +4];
+page_table_new_6 = MEMORY_FREE_LIST + [PAGE_TABLE_BASE + 20*new_PID +6];
+[page_table_new_4] = [page_table_new_4] +1;
+[page_table_new_6] = [page_table_new_6] +1;
 
 //copying stack page
 alias stack_itr R4;
@@ -146,7 +154,7 @@ alias physicalAddrRetVal R4;
     [physicalAddrRetVal] = 0; //child process
     // restore;
     [PROCESS_TABLE + 16*current_pid + 9 ] = 0;
-    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    SP = userSP;
 
 ireturn;
 
