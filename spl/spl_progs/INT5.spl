@@ -1,0 +1,96 @@
+//INT 5
+//open and close
+alias user_sp R2;
+alias current_pid R1;
+[PROCESS_TABLE +  [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
+SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1]* 16) + 11] * 512 - 1;
+current_pid = [SYSTEM_STATUS_TABLE + 1 ];
+user_sp = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+alias sys_call_num R3;
+sys_call_num = [[PTBR + 2*(user_sp - 5)/512]*512 + (user_sp-5)%512];
+alias return_para R10;
+return_para = [PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512;
+alias process_state R11;
+process_state= PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+ 9 ;
+alias per_process R12;
+per_process = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET;
+
+if(sys_call_num == INT_OPEN) then
+    [process_state] = INT_OPEN;
+    alias file_name R3;
+    alias file_index R4;
+    alias per_entry R5;
+    
+ 
+    file_name = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
+    call get_free_entry_per;
+    if(R0 == -3) then
+        [return_para] = R0;
+    else
+        per_entry = R0;
+        //calling open()
+        multipush(R1,R2,R3,R5,R6);
+            R1 = OPEN;
+            R2 = file_name;
+            call FILE_MANAGER;
+        multipop(R1,R2,R3,R5,R6);
+        if(R0 < 0)  then
+            [return_para] = R0;
+        else
+            file_index = R0;
+            [per_process + 2*per_entry + 1] = file_index;
+            [return_para] = per_entry;
+        endif;
+    endif;
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    ireturn;
+endif;
+if (sys_call_num == INT_CLOSE) then
+    [process_state] = INT_CLOSE;
+    alias file_desc R4;
+    
+ 
+    file_desc = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    if (file_desc <0 || file_desc>7) then
+    [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
+    else 
+        if([per_process + file_desc*2]!=FILE) then
+            [return_para] = -1;
+            SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+            [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+            ireturn;
+        endif;
+        alias file_index R7;
+        file_index = [per_process + file_desc*2 +1];
+        multipush(R1,R2,R3,R5,R4,R6);
+            R1 = CLOSE;
+            R2 = file_index;
+            call FILE_MANAGER;
+        multipop(R1,R2,R3,R5,R4,R6);
+        [[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET + file_desc  ] = -1;
+        [[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET + file_desc  + 1 ] = -1;
+    endif;
+    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    ireturn;
+endif;
+get_free_entry_per:
+    multipush(R2);
+    R0 = -3;
+    alias per_process_itr R2; 
+    per_process_itr = 0;
+    while (per_process_itr <16) do
+        if ([per_process + per_process_itr]==-1) then
+            R0 = per_process_itr;
+            [per_process + per_process_itr] = FILE;//setting it as FILE
+            break;
+        endif;
+        per_process_itr = per_process_itr + 2;        
+    endwhile;
+    multipop(R2);
+return;
+//alias user_sp R2;
+

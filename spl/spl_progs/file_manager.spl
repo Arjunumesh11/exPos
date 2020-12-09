@@ -1,0 +1,82 @@
+//file manager
+//module 
+
+//R1 is function number
+//R2 PID of current proccess
+alias functionNum R1;
+
+if(functionNum == INT_OPEN) then 
+    alias file_name R2;
+    alias inode_itr R3;
+    inode_itr = 1;
+    while (inode_itr<MAX_FILE_NUM) do
+        if([INODE_TABLE + 16*inode_itr + 1] == file_name) then
+            break;
+        endif;
+        inode_itr = inode_itr + 1;
+    endwhile;
+    if(inode_itr == MAX_FILE_NUM) then
+        R0 = -1;
+        return;
+    endif;
+    multipush(R1,R2,R3);
+        R2 = [SYSTEM_STATUS_TABLE +1];
+        R1 = ACQUIRE_INODE;
+        call RESOURCE_MANAGER;
+    multipop(R1,R2,R3);
+    //getting free open table
+    alias open_table R4;
+    while (open_table<MAX_OPENFILE_NUM) do
+        if([OPEN_FILE_TABLE + 4*open_table ] == -1) then
+            break;
+        endif;
+        open_table = open_table + 1;
+    endwhile;
+    if(open_table == MAX_OPENFILE_NUM) then
+        multipush(R1,R2,R3,R4,R5);
+            R2 = [SYSTEM_STATUS_TABLE +1];
+            R1 = RELEASE_INODE;
+        call RESOURCE_MANAGER;
+        multipop(R1,R2,R3,R4,R5);
+        R0 = -2;
+        return;
+    endif;
+    if(file_name == "root") then
+        [OPEN_FILE_TABLE + 4*open_table] = INODE_ROOT;
+    else
+        if([FILE_STATUS_TABLE + inode_itr*4 + 1]==-1) then
+            [FILE_STATUS_TABLE + inode_itr*4 + 1]=1;
+        else
+        [FILE_STATUS_TABLE + inode_itr*4 + 1]=[FILE_STATUS_TABLE + inode_itr*4 + 1]+1;
+        endif;
+        [OPEN_FILE_TABLE + 4*open_table] = inode_itr;
+    endif;
+    [OPEN_FILE_TABLE + 4*open_table + 1] = 1;
+    [OPEN_FILE_TABLE + 4*open_table + 2] = 0;
+    multipush(R1,R2,R3,R4,R5);
+        R2 = [SYSTEM_STATUS_TABLE +1];
+        R1 = RELEASE_INODE;
+        call RESOURCE_MANAGER;
+    multipop(R1,R2,R3,R4,R5);
+    R0 = open_table;
+    return;
+endif;
+
+if(functionNum == INT_CLOSE) then
+    alias open_table R2;
+    alias inode_itr R3;
+    inode_itr = [OPEN_FILE_TABLE + open_table*4 ];    
+    [OPEN_FILE_TABLE + open_table*4 + 1] = [OPEN_FILE_TABLE + open_table*4 +1] - 1;
+    if([OPEN_FILE_TABLE + open_table*4 + 1]==0) then 
+        [OPEN_FILE_TABLE + open_table*4 + 0] = -1;
+        [OPEN_FILE_TABLE + open_table*4 + 1] = -1;
+        [OPEN_FILE_TABLE + open_table*4 + 2] = -1;
+        if([INODE_TABLE + 16*inode_itr + 1]!="root") then
+            [FILE_STATUS_TABLE + inode_itr*4 + 1 ] = [FILE_STATUS_TABLE + inode_itr*4 + 1 ]-1;
+            if([FILE_STATUS_TABLE + inode_itr*4 + 1 ]==0) then
+                [FILE_STATUS_TABLE + inode_itr*4 + 1 ] = -1;
+            endif;
+        endif;
+    endif;
+    return;
+endif;
