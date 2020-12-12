@@ -1,0 +1,49 @@
+decl
+    int i, semid, pid, data, temp, filedis, a;
+    string filename;
+enddecl
+
+int main()
+{
+begin
+    
+    filedis = exposcall("Open", "numbers.dat");
+    semid = exposcall("Semget");
+    //temp = exposcall("Write",-2,semid);
+    pid = exposcall("Fork");
+   // temp = exposcall("Write",-2,pid);
+    a = 0;
+    data = -1;
+    if(pid > 0) then
+        while(a != -2)  do
+            //temp = exposcall("Write",-2,"parent");
+            temp = exposcall("SemLock", semid);
+            temp = exposcall("Write",-2,"sem : ");
+            a = exposcall("Write",-2,temp);
+            //temp = exposcall("Write",-2,"loop");
+            a = exposcall("Read",filedis,data);
+            //temp = exposcall("Write",-2,a);
+            temp = exposcall("Write",-2,data);
+            //temp = exposcall("Write",-2,"end");
+            temp = exposcall("SemUnLock", semid);
+        endwhile;
+        
+        temp = exposcall("Semrelease", semid);
+    else
+        while(a != -2)  do
+        //    temp = exposcall("Write",-2,"child");
+            temp = exposcall("SemLock", semid);
+            a = exposcall("Write",-2,temp);
+             temp = exposcall("Write",-2,"sem : ");
+            a = exposcall("Read",filedis,data);
+            temp = exposcall("Write",-2,data);
+       //     temp = exposcall("Write",-2,"end");
+            temp = exposcall("SemUnLock", semid);
+        endwhile;
+
+        temp = exposcall("Semrelease", semid);
+    endif;
+    temp = exposcall("Write",-2,"ENDDD");
+    return 0;
+end
+}

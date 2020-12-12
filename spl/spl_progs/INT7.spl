@@ -1,6 +1,7 @@
 //write
 //INT 7
 //setting the init number
+//  print "write";
 [PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 5;
 alias userSP R0;
 
@@ -50,5 +51,4 @@ endif;
 //changing sp back to user_mode
 SP = userSP;
 [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16)  + 9] = 0;
-[PROCESS_TABLE + [SYSTEM_STATUS_TABLE + 1] * 16 + 9] = 0;
 ireturn;

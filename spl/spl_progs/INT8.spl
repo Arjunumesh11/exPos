@@ -1,5 +1,6 @@
 //fork systen call
-//breakpoint;
+// print "fork";
+// breakpoint;
 alias userSP R1;
 alias current_pid R2;
 current_pid = [SYSTEM_STATUS_TABLE + 1 ];

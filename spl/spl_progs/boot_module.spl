@@ -33,6 +33,9 @@ loadi(7,20);
 //int4
 loadi(10,23);
 loadi(11,24);
+//int5
+loadi(12,25);
+loadi(13,26);
 //int6
 loadi(14,27);
 loadi(15,28);
@@ -84,6 +87,9 @@ loadi(43,56);
 //memory manager mod 2 
 loadi(44,57);
 loadi(45,58);
+//memory manager mod 3 
+loadi(46,59);
+loadi(47,60);
 //__________INIT program________________
 
 //library
@@ -175,6 +181,17 @@ while (buffer_itr<MAX_BUFFER) do
     [BUFFER_TABLE + 4*buffer_itr + 2] = -1; //locking_pid
     buffer_itr = buffer_itr + 1;
 endwhile;
+
+alias open_table R0;
+open_table = 0;
+
+while (open_table<MAX_OPENFILE_NUM) do
+    [OPEN_FILE_TABLE + 4*open_table ] = -1;//block num
+    [OPEN_FILE_TABLE + 4*open_table + 1] = -1; //dirtybit
+    [OPEN_FILE_TABLE + 4*open_table + 2] = -1; //locking_pid
+    open_table = open_table + 1;
+endwhile;
+
 //setting state of remaining process to Terminated
 //there are 16 process
 alias current R1;

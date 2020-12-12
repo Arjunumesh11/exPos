@@ -19,6 +19,7 @@ if (sys_call_num == INT_SEMLOCK) then
     file_desc = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
 
     if (file_desc <0 || file_desc>7 || [sem_entry + file_desc*2 ]!=1) then
+        print "illega_desc";
         [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
     else 
         //checking whether current process have ownership

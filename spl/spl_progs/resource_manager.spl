@@ -5,11 +5,48 @@
 //R2 PID of current proccess
 alias functionNum R1;
 alias currentPID R2;
-
+if(functionNum == ACQUIRE_BUFFER) then
+    // print "ac_buf";
+    // breakpoint;
+    alias buffer_num R3;
+    alias current_process R4;
+    while ([BUFFER_TABLE + 4*buffer_num + 2]!=-1) do
+        // print "buffer";
+        current_process = PROCESS_TABLE + 16*currentPID;
+        [current_process + 4] = WAIT_BUFFER;
+        [current_process + 5] = buffer_num;
+        multipush(R1,R2,R3,R4);
+        call SCHEDULER;
+        multipop(R1,R2,R3,R4);
+    endwhile;
+        [BUFFER_TABLE + 4*buffer_num + 2] = currentPID;
+        return;
+endif;
+if(functionNum == RELEASE_BUFFER) then
+    // print "re_buff";
+    // breakpoint;
+    alias buffer_num R3;
+    if([BUFFER_TABLE + buffer_num*4 +2]!=currentPID) then
+        R0 = -1;
+        return;
+    endif;
+    [BUFFER_TABLE + buffer_num*4 +2] = -1;
+    alias process_itr R4;
+    process_itr = 1;
+    while (process_itr < 16) do
+        if ([PROCESS_TABLE + 16*process_itr + 4 ] == WAIT_BUFFER && [PROCESS_TABLE + 16*process_itr + 5 ] ==buffer_num) then
+            [PROCESS_TABLE + 16*process_itr + 4 ] = READY;
+            [PROCESS_TABLE + 16*process_itr + 5 ] = 0;
+        endif;
+        process_itr = process_itr + 1;
+    endwhile;
+    return;
+endif;
 //accquire disk 2
 if (functionNum == ACQUIRE_DISK) then
     // print "acq disk";
     while ([DISK_STATUS_TABLE]==1) do
+        // print "disk";
         [PROCESS_TABLE + 16*currentPID + 4] = WAIT_DISK;
         multipush(R1,R2);
         call SCHEDULER;
@@ -21,9 +58,12 @@ if (functionNum == ACQUIRE_DISK) then
     return;
 endif;
 //accquire inode 4
-if(functionNum == ACQUIRE_INODE) then
+if(functionNum == 4) then
     alias inode_index R3;
+    // print "acc_indoe";
+    // breakpoint;
     while ([FILE_STATUS_TABLE +inode_index*4]!=-1) do
+       
         alias current_process R4;
         current_process = PROCESS_TABLE + 16*currentPID;
         [current_process + 4] = WAIT_FILE;
@@ -44,13 +84,15 @@ if(functionNum == ACQUIRE_INODE) then
 endif;
 //release inode 5 
 if (functionNum == RELEASE_INODE ) then
+    // print "release_inode";
+    // breakpoint;
     alias inode_index R3;
-    if(currentPID != [FILE_MANAGER + inode_index*4]) then
+    if(currentPID != [FILE_STATUS_TABLE + inode_index*4]) then
     R0 = -1;
     return;
     endif;
     //releaseing lock
-    [FILE_MANAGER + inode_index*4] = -1;
+    [FILE_STATUS_TABLE+ inode_index*4] = -1;
     alias process_itr R4;
     process_itr = 1;
     while (process_itr < 16) do
@@ -61,6 +103,8 @@ if (functionNum == RELEASE_INODE ) then
         process_itr = process_itr + 1;
     endwhile;
     R0 = 0;
+     print "ree_inode";
+     breakpoint;
     return;
 endif;
 //accquire sem 6
@@ -71,6 +115,7 @@ if (functionNum == ACQUIRE_SEMAPHORE) then
     
     while (sem_itr<MAX_SEM_COUNT) do
         if ([SEMAPHORE_TABLE + 4*sem_itr + 1]== 0) then
+            // print "sem";
             [SEMAPHORE_TABLE + 4*sem_itr + 1] = 1;
             [SEMAPHORE_TABLE + 4*sem_itr + 1] = -1;
             R0 = sem_itr;
@@ -99,7 +144,7 @@ if(functionNum == RELEASE_SEMAPHORE) then
         endwhile;
         [SEMAPHORE_TABLE + sem_index + 1] = [SEMAPHORE_TABLE + sem_index + 1] -1;
     endif;
-    
+    return;
 endif;
 
 
@@ -108,6 +153,7 @@ if (functionNum == 8) then
     alias terminal_status R3;
     terminal_status = [TERMINAL_STATUS_TABLE];
     while (terminal_status==1) do
+        // print "term";
         alias current_process R4;
         current_process = PROCESS_TABLE + 16*currentPID;
         [current_process + 4] = WAIT_TERMINAL;

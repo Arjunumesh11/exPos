@@ -94,8 +94,8 @@ else
     
     multipop(R1,R2,R3,R4);
     //Code
-    print "code";
-    breakpoint;
+    // print "code";
+    // breakpoint;
     if ([INODE_TABLE + 16*inode_itr + 8]!=-1) then
         multipush(R1,R2,R3,R4);
         //get page table function

@@ -1,0 +1,41 @@
+//read
+alias userSP R0;
+alias current_pid R1;
+
+userSP=SP;
+current_pid = [SYSTEM_STATUS_TABLE + 1];
+alias process_table R2;
+process_table = PROCESS_TABLE + 16*current_pid;
+//setting mod to 7 systemcall no
+[process_table + 9] = 7;
+
+[process_table + 13] = SP;
+SP = [process_table + 11]*512 - 1;
+
+alias fileDescriptor R3;
+fileDescriptor=[[PTBR + 2*(userSP - 4)/512]*512 + (userSP-4)%512];
+
+if (fileDescriptor != -1)
+then
+	 [[PTBR + 2*(userSP - 1)/512]*512 + (userSP-1)%512] = -1;
+else
+    alias word R5; //address of word
+    word = [([PTBR + 2 * ((userSP - 3) / 512)] * 512) + ((userSP - 3) % 512)];
+    multipush(R1,R2,R3,R4,R5);
+    alias function_num R1;
+    alias PID R2;
+    alias word_address R3;
+
+    function_num = 4; //terminal read
+    PID = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1]+ 1];
+    word_address = word;
+    // print "terminal read";
+    call DEVICE_MANAGER;
+    // print "terminal read end";
+
+    multipop(R1,R2,R3,R4,R5);
+    [[PTBR + 2*(userSP - 1)/512]*512 + (userSP-1)%512] = 0;
+endif;
+[process_table +9] = 0;
+SP = [process_table + 13];
+ireturn;

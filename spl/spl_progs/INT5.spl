@@ -1,5 +1,7 @@
 //INT 5
 //open and close
+// print "open_close";
+// breakpoint; 
 alias user_sp R2;
 alias current_pid R1;
 [PROCESS_TABLE +  [SYSTEM_STATUS_TABLE + 1] * 16 + 13] = SP;
@@ -34,6 +36,8 @@ if(sys_call_num == INT_OPEN) then
             R2 = file_name;
             call FILE_MANAGER;
         multipop(R1,R2,R3,R5,R6);
+        // print "index";
+        // breakpoint;
         if(R0 < 0)  then
             [return_para] = R0;
         else
@@ -44,8 +48,11 @@ if(sys_call_num == INT_OPEN) then
     endif;
     SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
     [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    // print "end";
+    // breakpoint;
     ireturn;
 endif;
+
 if (sys_call_num == INT_CLOSE) then
     [process_state] = INT_CLOSE;
     alias file_desc R4;
@@ -82,15 +89,16 @@ get_free_entry_per:
     R0 = -3;
     alias per_process_itr R2; 
     per_process_itr = 0;
-    while (per_process_itr <16) do
-        if ([per_process + per_process_itr]==-1) then
+    while (per_process_itr <8) do
+        if ([per_process + 2*per_process_itr]==-1) then
             R0 = per_process_itr;
-            [per_process + per_process_itr] = FILE;//setting it as FILE
+            [per_process + 2*per_process_itr] = FILE;//setting it as FILE
             break;
         endif;
-        per_process_itr = per_process_itr + 2;        
+        per_process_itr = per_process_itr + 1;        
     endwhile;
     multipop(R2);
+  
 return;
 //alias user_sp R2;
 

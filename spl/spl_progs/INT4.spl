@@ -109,6 +109,7 @@ if(sys_call_num == INT_DELETE) then
     endif;
     //accuquire inode 
     multipush(R1,R2,R3,R4);
+        R3 = inode_itr;
         R2 = current_pid;
         R1 = ACQUIRE_INODE;
         call RESOURCE_MANAGER;
@@ -151,7 +152,9 @@ if(sys_call_num == INT_DELETE) then
         R7 = R7 +1;
     endwhile;
     //release inode
+    // print "delet_inod";
     multipush(R1,R2,R3,R4,R5);
+        R3 =inode_itr;
         R2 = current_pid;
         R1 = RELEASE_INODE;
         call RESOURCE_MANAGER;
