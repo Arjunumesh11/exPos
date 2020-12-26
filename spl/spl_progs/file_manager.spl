@@ -1,24 +1,26 @@
 //file manager
-//module 
+//module 3
 
 //R1 is function number
 //R2 PID of current proccess
 // print "file_mangr";
 // breakpoint;
 alias functionNum R1;
-if(functionNum == BUFFERED_READ) then
-    // print "buff_rd";
+if(functionNum == BUFFERED_READ || functionNum == BUFFERED_WRITE) then
+     //print "buff_rd";
+     alias disk_num R2;
+     alias offset R3;
+     alias mem_adress R4;
+     // print "buff_read_ac";
     // breakpoint;
-    alias disk_num R2;
-    alias offset R3;
-    alias mem_adress R4;
-    // print "buff_read_ac";
     multipush(R1,R2,R3,R4);
         R3 = disk_num%4;
         R1 = ACQUIRE_BUFFER;
         R2 = [SYSTEM_STATUS_TABLE + 1];
         call RESOURCE_MANAGER;
     multipop(R1,R2,R3,R4);
+    //print "inode";
+    //breakpoint;
     //checking bloknumber
     if([BUFFER_TABLE + (disk_num%4)*4]!=disk_num) then
         //checking dirty bits
@@ -37,20 +39,31 @@ if(functionNum == BUFFERED_READ) then
         R3 = BUFFER_BASE + disk_num%4;
         R1 = DISK_LOAD;
         R2 = [SYSTEM_STATUS_TABLE + 1];
+        print "dsk_load";
+        breakpoint;
         call DEVICE_MANAGER;
         multipop(R1,R2,R3,R4);
-         print "dsk_load";
-         breakpoint;
         
         
     endif;
+   // print "buff_rd_1";
+   // reakpoint;
     [BUFFER_TABLE + (disk_num%4)*4 ] = disk_num;
     alias word_address R5;
-    alias temp R6;
+    if(functionNum == BUFFERED_READ) then    
     word_address = [PTBR + 2 * (mem_adress/ 512)] * 512 + (mem_adress % 512);
-    temp =  [(BUFFER_BASE + disk_num%4)*512 + offset]; 
     [word_address] = [(BUFFER_BASE + disk_num%4)*512 + offset];  
-     breakpoint;
+    print "buff_read"; 
+    breakpoint;
+    endif;
+    if(functionNum == BUFFERED_WRITE) then
+        //print "write";
+        //breakpoint;
+        [(BUFFER_BASE + disk_num%4)*512 + offset] = mem_adress;
+        [BUFFER_TABLE + disk_num%4*4 + 1] = 1; //dirty bit
+        print "buff_write";
+        breakpoint;
+    endif;
     // print "bif_read_re";
         multipush(R1,R2,R3,R4);
             R3 = disk_num%4;
@@ -59,22 +72,24 @@ if(functionNum == BUFFERED_READ) then
             call RESOURCE_MANAGER;
         multipop(R1,R2,R3,R4);
         // print "end_bufrd";
-        // breakpoint;
+        //breakpoint;
     return;
 endif;
 
 if(functionNum == OPEN) then 
-    // print "file_opn";
+     //print "file_opn";
     // breakpoint;
     alias file_name R2;
     alias inode_itr R3;
-    inode_itr = 1;
+    inode_itr = 0;
     while (inode_itr<MAX_FILE_NUM) do
         if([INODE_TABLE + 16*inode_itr + 1] == file_name) then
             break;
         endif;
         inode_itr = inode_itr + 1;
     endwhile;
+    //print "file_open";
+    //breakpoint;
     if(inode_itr == MAX_FILE_NUM) then
         R0 = -1;
         return;
@@ -108,12 +123,13 @@ if(functionNum == OPEN) then
         return;
     endif;
     if(file_name == "root") then
+        print "rooT_op";
         [OPEN_FILE_TABLE + 4*open_table] = INODE_ROOT;
     else
         if([FILE_STATUS_TABLE + inode_itr*4 + 1]==-1) then
             [FILE_STATUS_TABLE + inode_itr*4 + 1]=1;
         else
-        [FILE_STATUS_TABLE + inode_itr*4 + 1]=[FILE_STATUS_TABLE + inode_itr*4 + 1]+1;
+            [FILE_STATUS_TABLE + inode_itr*4 + 1]=[FILE_STATUS_TABLE + inode_itr*4 + 1]+1;
         endif;
         [OPEN_FILE_TABLE + 4*open_table] = inode_itr;
     endif;
@@ -134,12 +150,14 @@ endif;
 if(functionNum == CLOSE) then
     alias open_table R2;
     alias inode_itr R3;
-    inode_itr = [OPEN_FILE_TABLE + open_table*4 ];    
-    [OPEN_FILE_TABLE + open_table*4 + 1] = [OPEN_FILE_TABLE + open_table*4 +1] - 1;
-    if([OPEN_FILE_TABLE + open_table*4 + 1]==0) then 
-        [OPEN_FILE_TABLE + open_table*4 + 0] = -1;
-        [OPEN_FILE_TABLE + open_table*4 + 1] = -1;
-        [OPEN_FILE_TABLE + open_table*4 + 2] = -1;
+    alias open_table_addr R4;
+    open_table_addr = OPEN_FILE_TABLE + open_table*4;
+    inode_itr = [open_table_addr ];    
+    [open_table_addr + 1] = [open_table_addr +1] - 1;
+    if([open_table_addr + 1]==0) then 
+        [open_table_addr + 0] = -1;
+        [open_table_addr + 1] = -1;
+        [open_table_addr + 2] = -1;
         if([INODE_TABLE + 16*inode_itr + 1]!="root") then
             [FILE_STATUS_TABLE + inode_itr*4 + 1 ] = [FILE_STATUS_TABLE + inode_itr*4 + 1 ]-1;
             if([FILE_STATUS_TABLE + inode_itr*4 + 1 ]==0) then

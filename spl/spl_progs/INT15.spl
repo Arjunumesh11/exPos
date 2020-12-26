@@ -13,9 +13,35 @@ alias user_sp R2;
 user_sp = SP;
 [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13] = SP;
 SP = [PROCESS_TABLE + ([SYSTEM_STATUS_TABLE + 1] * 16) + 11] * 512 - 1;
-if(current_pid != ROOT) then
+if(current_pid != 1 && [PROCESS_TABLE + 16*current_pid+3]!=ROOT) then
     [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
 else
+    //kill all
+    multipush(R0, R1, R2);
+    R1 = KILL_ALL;
+    R2 = [SYSTEM_STATUS_TABLE + 1];
+    call PROCESS_MANAGER;
+    multipop(R0, R1, R2);
+
+    alias buff_itr R3;
+    buff_itr = 0;
+    //if buffer dirty then write back
+    while buff_itr < 4 do
+        if [BUFFER_TABLE + 4*buff_itr] != -1 && [BUFFER_TABLE + 4*buff_itr + 1] == 1 then
+        print "saving..";  
+        breakpoint;  
+        multipush(R0,R1, R2, R3);
+            R4 = [BUFFER_TABLE + 4*buff_itr];
+            R3 = BUFFER_BASE + buff_itr;
+            R2 = [SYSTEM_STATUS_TABLE + 1];
+            R1 = DISK_STORE;
+            call DEVICE_MANAGER;
+            multipop(R0,R1, R2, R3);
+            [BUFFER_TABLE + 4*buff_itr + 1] = 0;
+        endif;
+        buff_itr = buff_itr + 1;
+    endwhile;
+
     alias block_num R4;
     alias page_num R3;
   //storeing......

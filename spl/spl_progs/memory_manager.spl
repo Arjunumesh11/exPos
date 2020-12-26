@@ -56,8 +56,22 @@ if(functionNum == RELEASE_PAGE) then
     endif;   
     return;
 endif;
+if(functionNum == GET_FREE_BLOCK) then
+    alias free_block_itr R3;
+    free_block_itr = DISK_FREE_AREA+1;
 
-//release block 
+    while (free_block_itr < DISK_SWAP_AREA) do
+        if [DISK_FREE_LIST + free_block_itr] == 0 then
+            [DISK_FREE_LIST + free_block_itr] = 1;
+            R0 = free_block_itr;
+            return;
+        endif;
+        free_block_itr = free_block_itr + 1;
+    endwhile;
+    R0 = -1;
+    return;
+endif;
+//release block
 if(functionNum == RELEASE_BLOCK) then
     alias block_num R3;
     [DISK_FREE_LIST + block_num] = [DISK_FREE_LIST + block_num] - 1;

@@ -74,30 +74,31 @@ else
                     R2 = [SYSTEM_STATUS_TABLE +1];
                     R1 = RELEASE_INODE;
                     call RESOURCE_MANAGER;
-                multipush(R1,R2,R10);
+                multipop(R1,R2,R10);
                 [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
             else
                 if ([INODE_TABLE + 16*inode_itr + 2]==lseek) then
                     [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -2;
-                    print "size_inoe";
-                    breakpoint;
+                    //print "size_inoe";
+                    //breakpoint;
                     multipush(R1,R2,R10);
                     R3 = inode_itr;
                     R2 = [SYSTEM_STATUS_TABLE +1];
                     R1 = RELEASE_INODE;
-                    print "rel";
-                    breakpoint;
+                   // print "rel";
+                    //breakpoint;
                     call RESOURCE_MANAGER;
-                multipush(R1,R2,R10);
+                    multipop(R1,R2,R10);
                 else
                 alias block_num R4;
                 block_num = [INODE_TABLE + 16*inode_itr + 8 + lseek/512];
-                //buffered read
                 multipush(R1,R2,R3,R4,R5,R6,R7);
                 R1 = BUFFERED_READ;
                 R2 = block_num;
                 R3 = lseek%512;
                 R4 = word;
+                print "bud";
+                breakpoint;
                 call FILE_MANAGER;
                 multipop(R1,R2,R3,R4,R5,R6,R7);
                 // print "buf";

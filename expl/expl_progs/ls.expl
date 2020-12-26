@@ -1,0 +1,18 @@
+int main()
+{
+decl
+    int buffer;
+    int temp, fd, tmp1;
+enddecl
+
+begin
+    temp = exposcall("Write",-2,"_LS_");
+    fd = exposcall("Open", "root");
+    temp = 0;
+    while (temp != -2) do
+        temp = exposcall("Read", fd, buffer);
+        tmp1 = exposcall("Write", -2, buffer);
+    endwhile;
+    return 0;
+end
+}

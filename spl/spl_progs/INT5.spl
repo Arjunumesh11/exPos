@@ -25,6 +25,8 @@ if(sys_call_num == INT_OPEN) then
     
  
     file_name = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
+    //print "open";
+    //breakpoint;
     call get_free_entry_per;
     if(R0 == -3) then
         [return_para] = R0;
@@ -36,7 +38,7 @@ if(sys_call_num == INT_OPEN) then
             R2 = file_name;
             call FILE_MANAGER;
         multipop(R1,R2,R3,R5,R6);
-        // print "index";
+        // print "open_int_5";
         // breakpoint;
         if(R0 < 0)  then
             [return_para] = R0;
@@ -46,11 +48,11 @@ if(sys_call_num == INT_OPEN) then
             [return_para] = per_entry;
         endif;
     endif;
-    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
-    // print "end";
-    // breakpoint;
-    ireturn;
+    // SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    // [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    // // print "end";
+    // // breakpoint;
+    // ireturn;
 endif;
 
 if (sys_call_num == INT_CLOSE) then
@@ -80,10 +82,68 @@ if (sys_call_num == INT_CLOSE) then
         [[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET + file_desc  ] = -1;
         [[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET + file_desc  + 1 ] = -1;
     endif;
-    SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
-    [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
-    ireturn;
+    // SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    // [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    // ireturn;
 endif;
+
+
+if(sys_call_num == INT_SEEK) then
+    [process_state] = INT_SEEK;
+    alias file_desc R4;
+    alias offset R5;
+    file_desc = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
+    offset = [[PTBR + 2*(user_sp - 3)/512]*512 + (user_sp-3)%512];
+    if (file_desc <0 || file_desc>7  ) then
+        [return_para] = -1;
+    else 
+    alias per_process R6;
+        per_process = [PROCESS_TABLE + 16*current_pid + 11]*512 + RESOURCE_TABLE_OFFSET +file_desc*2;
+        if([per_process]!=FILE) then
+            print "error";
+            [return_para] = -1;
+        else
+        alias open_table R7;
+            open_table = [per_process + 1];
+            alias inode_itr R8;
+            inode_itr = [OPEN_FILE_TABLE + open_table*4 ];
+            // print "inode";
+            // breakpoint;
+            //acquire inode
+            multipush(R1,R2,R3,R4,R5,R6,R7,R8);
+                R3 =inode_itr;
+                R2 = [SYSTEM_STATUS_TABLE +1];
+                R1 = ACQUIRE_INODE;
+                call RESOURCE_MANAGER;
+            multipop(R1,R2,R3,R4,R5,R6,R7,R8);
+            alias lseek R9;
+            lseek = [OPEN_FILE_TABLE + 4*open_table + 2];
+            if (inode_itr == INODE_ROOT && lseek + offset == 480) then
+                [return_para]= -2;
+            else
+                if (inode_itr != INODE_ROOT && lseek + offset < 0) then 
+                    [return_para]= -2;
+                else
+                    if offset == 0 then
+                        [OPEN_FILE_TABLE + 4*open_table + 2] = 0;
+                    else 
+                        if (lseek + offset > [INODE_TABLE + 16*inode_itr +2]) then
+                            [OPEN_FILE_TABLE + 4*open_table + 2] = [INODE_TABLE + 16*inode_itr +2];
+                        else 
+                            [OPEN_FILE_TABLE + 4*open_table + 2] = lseek + offset;
+                        endif;
+                    endif;
+                endif;
+            endif;
+        endif;
+    endif;
+    // SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+    // [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+    // ireturn;
+endif;
+SP = [PROCESS_TABLE + ( [SYSTEM_STATUS_TABLE + 1] * 16) + 13];
+[PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = 0;
+ireturn;
 get_free_entry_per:
     multipush(R2);
     R0 = -3;

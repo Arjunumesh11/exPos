@@ -12,17 +12,22 @@ sys_call_num = [[PTBR + 2*(user_sp - 5)/512]*512 + (user_sp-5)%512];
 //semlocl
 
 if (sys_call_num == INT_SEMLOCK) then
+    //print "sem_lio";
+    //breakpoint;
     [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1 ]+9 ] = INT_SEMLOCK;
     alias sem_entry R6;
-    sem_entry = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11] + RESOURCE_TABLE_OFFSET;
+    sem_entry = [PROCESS_TABLE + 16*[SYSTEM_STATUS_TABLE + 1] + 11]*512 + RESOURCE_TABLE_OFFSET;
     alias file_desc R4;
     file_desc = [[PTBR + 2*(user_sp - 4)/512]*512 + (user_sp-4)%512];
 
     if (file_desc <0 || file_desc>7 || [sem_entry + file_desc*2 ]!=1) then
         print "illega_desc";
+        breakpoint;
         [[PTBR + 2*(user_sp - 1)/512]*512 + (user_sp-1)%512] = -1;
     else 
         //checking whether current process have ownership
+        //print "sem_sys";
+        //breakpoint;
         alias  sem_index R5;
         sem_index = [sem_entry + file_desc*2 + 1 ];
         while([SEMAPHORE_TABLE + sem_index ]!= -1) do

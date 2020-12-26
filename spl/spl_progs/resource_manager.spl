@@ -6,12 +6,12 @@
 alias functionNum R1;
 alias currentPID R2;
 if(functionNum == ACQUIRE_BUFFER) then
-    // print "ac_buf";
-    // breakpoint;
+    //  print "ac_buf";
+    //  breakpoint;
     alias buffer_num R3;
     alias current_process R4;
     while ([BUFFER_TABLE + 4*buffer_num + 2]!=-1) do
-        // print "buffer";
+         print "buffer wait";
         current_process = PROCESS_TABLE + 16*currentPID;
         [current_process + 4] = WAIT_BUFFER;
         [current_process + 5] = buffer_num;
@@ -21,6 +21,8 @@ if(functionNum == ACQUIRE_BUFFER) then
     endwhile;
         [BUFFER_TABLE + 4*buffer_num + 2] = currentPID;
         return;
+        // print "ac_buf";
+        // breakpoint;
 endif;
 if(functionNum == RELEASE_BUFFER) then
     // print "re_buff";
@@ -103,8 +105,8 @@ if (functionNum == RELEASE_INODE ) then
         process_itr = process_itr + 1;
     endwhile;
     R0 = 0;
-     print "ree_inode";
-     breakpoint;
+     //print "ree_inode";
+    // breakpoint;
     return;
 endif;
 //accquire sem 6
